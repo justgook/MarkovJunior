@@ -18,6 +18,7 @@ static class Program
         int? forceSteps = null;
         string outputFolder = "output";
         string outputFormat = "visual";
+        int? modelIndex = null;
 
         foreach (string arg in args)
         {
@@ -27,6 +28,7 @@ static class Program
             else if (arg.StartsWith("--steps=")) forceSteps = int.Parse(arg[8..]);
             else if (arg.StartsWith("--output=")) outputFolder = arg[9..];
             else if (arg.StartsWith("--format=")) outputFormat = arg[9..];
+            else if (arg.StartsWith("--model-index=")) modelIndex = int.Parse(arg[14..]);
             else if (modelFilter == null) modelFilter = arg;
             else throw new ArgumentException($"unknown argument: {arg}");
         }
@@ -39,10 +41,12 @@ static class Program
 
         MJRandom meta = new(0);
         XDocument xdoc = XDocument.Load("models.xml", LoadOptions.SetLineInfo);
+        int matchingModelIndex = 0;
         foreach (XElement xmodel in xdoc.Root.Elements("model"))
         {
             string name = xmodel.Get<string>("name");
             if (modelFilter != null && name != modelFilter) continue;
+            if (modelIndex != null && matchingModelIndex++ != modelIndex) continue;
             int linearSize = xmodel.Get("size", -1);
             int dimension = xmodel.Get("d", 2);
             int MX = xmodel.Get("length", linearSize);

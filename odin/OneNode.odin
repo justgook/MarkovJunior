@@ -8,8 +8,7 @@ Cell :: struct {
 	x, y, z: int,
 }
 
-run_one_node :: proc(g: ^Grid, rules: []Rule, seed: i32, steps: int) {
-	random := mj_random_init(seed)
+run_one_node :: proc(g: ^Grid, rules: []Rule, random: ^MJRandom, steps: int) {
 	matches := make([dynamic]Match)
 	defer delete(matches)
 	match_mask := make([][]bool, len(rules))
@@ -30,7 +29,7 @@ run_one_node :: proc(g: ^Grid, rules: []Rule, seed: i32, steps: int) {
 	counter := 0
 	for (steps <= 0 || counter < steps) && len(matches) > 0 {
 		for len(matches) > 0 {
-			match_index := int(mj_random_next_max(&random, i32(len(matches))))
+			match_index := int(mj_random_next_max(random, i32(len(matches))))
 			m := matches[match_index]
 			i := m.x + m.y * g.mx + m.z * g.mx * g.my
 			match_mask[m.r][i] = false

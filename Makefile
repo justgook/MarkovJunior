@@ -1,4 +1,4 @@
-.PHONY: all dotnet odin run run-odin compare compare-diff compare-cmp clean
+.PHONY: all dotnet odin run run-odin compare compare-diff compare-cmp model-status clean
 
 DOTNET ?= dotnet
 ODIN ?= odin
@@ -46,6 +46,9 @@ compare-cmp:
 	@while IFS= read -r file; do \
 		cmp "tmp/dotnet/$$file" "tmp/odin/$$file" || exit $$?; \
 	done < tmp/dotnet-files.txt
+
+model-status:
+	./scripts/model_status.py --write MODEL_STATUS.md
 
 clean:
 	$(DOTNET) clean

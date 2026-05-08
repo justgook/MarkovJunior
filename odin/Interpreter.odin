@@ -34,17 +34,32 @@ xml_attr_int :: proc(doc: ^xml.Document, id: xml.Element_ID, key: string, defaul
 	return default
 }
 
-load_model_config :: proc(name: string) -> (Model_Config, bool) {
+xml_attr_f64 :: proc(doc: ^xml.Document, id: xml.Element_ID, key: string, default: f64) -> f64 {
+	value := xml_attr(doc, id, key, "")
+	if value == "" do return default
+	if parsed, ok := strconv.parse_f64(value); ok {
+		return parsed
+	}
+	return default
+}
+
+load_model_config :: proc(name: string, model_index := -1) -> (Model_Config, bool) {
 	doc, err := xml.load_from_file("models.xml")
 	if err != .None || doc == nil {
 		return {}, false
 	}
 	defer xml.destroy(doc)
 
+	matching_index := 0
 	for id in 0..<len(doc.elements) {
 		e := doc.elements[id]
 		if e.ident != "model" do continue
 		if xml_attr(doc, xml.Element_ID(id), "name") != name do continue
+		if model_index >= 0 && matching_index != model_index {
+			matching_index += 1
+			continue
+		}
+		matching_index += 1
 
 		linear_size := xml_attr_int(doc, xml.Element_ID(id), "size", -1)
 		dimension := xml_attr_int(doc, xml.Element_ID(id), "d", 2)
@@ -62,8 +77,8 @@ load_model_config :: proc(name: string) -> (Model_Config, bool) {
 	return {}, false
 }
 
-run_xml_one_model :: proc(model_name: string, amount: int, output_folder: string, format: string, force_steps := -1) -> bool {
-	config, ok := load_model_config(model_name)
+run_xml_one_model :: proc(model_name: string, amount: int, output_folder: string, format: string, force_steps := -1, model_index := -1) -> bool {
+	config, ok := load_model_config(model_name, model_index)
 	if !ok {
 		fmt.printf("unknown model %s\n", model_name)
 		return false
@@ -82,12 +97,69 @@ run_xml_one_model :: proc(model_name: string, amount: int, output_folder: string
 	defer xml.destroy(doc)
 
 	root := xml.Element_ID(0)
-	if doc.elements[root].ident != "one" {
+	root_kind := doc.elements[root].ident
+	if root_kind != "one" && root_kind != "all" && root_kind != "prl" && root_kind != "sequence" {
 		return false
 	}
 
 	values := xml_attr(doc, root, "values")
 	origin := xml_attr_bool(doc, root, "origin")
+
+	meta := mj_random_init(0)
+	for k in 0..<amount {
+		seed := mj_random_next(&meta)
+		random := mj_random_init(seed)
+		g := grid_init(config.mx, config.my, config.mz, values, origin)
+		load_unions(doc, root, &g)
+		run_xml_element(doc, root, &g, &random, config.steps)
+		if format == "text" {
+			write_state_text(fmt.tprintf("%s/%s_%d.txt", output_folder, model_name, seed), g.state, g.mx, g.my, g.mz, g.characters)
+		}
+		grid_destroy(&g)
+		fmt.printf("%s > DONE\n", model_name)
+	}
+	return true
+}
+
+load_unions :: proc(doc: ^xml.Document, id: xml.Element_ID, g: ^Grid) {
+	for value in doc.elements[id].value {
+		#partial switch child_id in value {
+		case xml.Element_ID:
+			kind := doc.elements[child_id].ident
+			if kind == "union" {
+				symbol := xml_attr(doc, child_id, "symbol", "")
+				values := xml_attr(doc, child_id, "values", "")
+				if len(symbol) > 0 && len(values) > 0 {
+					grid_add_union(g, symbol[0], values)
+				}
+			} else {
+				load_unions(doc, child_id, g)
+			}
+		}
+	}
+}
+
+run_xml_element :: proc(doc: ^xml.Document, id: xml.Element_ID, g: ^Grid, random: ^MJRandom, default_steps: int) -> bool {
+	kind := doc.elements[id].ident
+	if kind == "sequence" {
+		for value in doc.elements[id].value {
+			#partial switch child_id in value {
+			case xml.Element_ID:
+				child_kind := doc.elements[child_id].ident
+				if child_kind == "union" {
+					continue
+				}
+				if child_kind == "one" || child_kind == "all" || child_kind == "prl" || child_kind == "sequence" {
+					run_xml_element(doc, child_id, g, random, default_steps)
+				}
+			}
+		}
+		return true
+	}
+
+	if kind != "one" && kind != "all" && kind != "prl" {
+		return false
+	}
 
 	rules_dyn := make([dynamic]Rule)
 	defer {
@@ -96,36 +168,38 @@ run_xml_one_model :: proc(model_name: string, amount: int, output_folder: string
 		}
 		delete(rules_dyn)
 	}
+	load_rules_for_element(doc, id, g, &rules_dyn)
 
-	g_for_rules := grid_init(config.mx, config.my, config.mz, values, false)
-	defer grid_destroy(&g_for_rules)
+	steps := xml_attr_int(doc, id, "steps", 0)
+	if steps == 0 && id == 0 {
+		steps = default_steps
+	}
 
-	// Either a single rule on the <one> element, or child <rule> elements.
-	in_root := xml_attr(doc, root, "in", "")
-	out_root := xml_attr(doc, root, "out", "")
-	if in_root != "" && out_root != "" {
-		append_square_symmetries(&g_for_rules, &rules_dyn, rule_init(&g_for_rules, in_root, out_root))
+	if kind == "one" {
+		run_one_node(g, rules_dyn[:], random, steps)
+	} else if kind == "all" {
+		run_all_node(g, rules_dyn[:], random, steps)
 	} else {
-		for value in doc.elements[root].value {
-			#partial switch child_id in value {
-			case xml.Element_ID:
-				if doc.elements[child_id].ident == "rule" {
-					append_square_symmetries(&g_for_rules, &rules_dyn, rule_init(&g_for_rules, xml_attr(doc, child_id, "in"), xml_attr(doc, child_id, "out")))
-				}
+		run_parallel_node(g, rules_dyn[:], random, steps)
+	}
+	return true
+}
+
+load_rules_for_element :: proc(doc: ^xml.Document, id: xml.Element_ID, g: ^Grid, rules: ^[dynamic]Rule) {
+	in_root := xml_attr(doc, id, "in", "")
+	out_root := xml_attr(doc, id, "out", "")
+	if in_root != "" && out_root != "" {
+		append_rule_symmetries(g, rules, rule_init(g, in_root, out_root, xml_attr_f64(doc, id, "p", 1.0)), xml_attr(doc, id, "symmetry", ""))
+		return
+	}
+
+	for value in doc.elements[id].value {
+		#partial switch child_id in value {
+		case xml.Element_ID:
+			if doc.elements[child_id].ident == "rule" {
+				symmetry := xml_attr(doc, child_id, "symmetry", xml_attr(doc, id, "symmetry", ""))
+				append_rule_symmetries(g, rules, rule_init(g, xml_attr(doc, child_id, "in"), xml_attr(doc, child_id, "out"), xml_attr_f64(doc, child_id, "p", 1.0)), symmetry)
 			}
 		}
 	}
-
-	meta := mj_random_init(0)
-	for k in 0..<amount {
-		seed := mj_random_next(&meta)
-		g := grid_init(config.mx, config.my, config.mz, values, origin)
-		run_one_node(&g, rules_dyn[:], seed, config.steps)
-		if format == "text" {
-			write_state_text(fmt.tprintf("%s/%s_%d.txt", output_folder, model_name, seed), g.state, g.mx, g.my, g.mz, g.characters)
-		}
-		grid_destroy(&g)
-		fmt.printf("%s > DONE\n", model_name)
-	}
-	return true
 }

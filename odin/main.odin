@@ -11,6 +11,7 @@ main :: proc() {
 	output := "output"
 	format := "text"
 	steps := -1
+	model_index := -1
 
 	for i in 1..<len(os.args) {
 		arg := os.args[i]
@@ -24,6 +25,11 @@ main :: proc() {
 			if ok {
 				steps = int(parsed)
 			}
+		} else if strings.has_prefix(arg, "--model-index=") {
+			parsed, ok := strconv.parse_int(arg[14:])
+			if ok {
+				model_index = int(parsed)
+			}
 		} else if strings.has_prefix(arg, "--output=") {
 			output = arg[9:]
 		} else if strings.has_prefix(arg, "--format=") {
@@ -34,7 +40,7 @@ main :: proc() {
 	}
 
 	if len(model) > 0 {
-		if run_xml_one_model(model, amount, output, format, steps) {
+		if run_xml_one_model(model, amount, output, format, steps, model_index) {
 			return
 		}
 	}

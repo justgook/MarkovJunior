@@ -1,11 +1,13 @@
 package main
 
 Grid :: struct {
-	state:      []u8,
-	mx:         int,
-	my:         int,
-	mz:         int,
-	characters: string,
+	state:       []u8,
+	mx:          int,
+	my:          int,
+	mz:          int,
+	characters:  string,
+	union_keys:  [dynamic]u8,
+	union_waves: [dynamic]i32,
 }
 
 grid_init :: proc(mx, my, mz: int, values: string, origin: bool) -> Grid {
@@ -27,6 +29,20 @@ grid_destroy :: proc(g: ^Grid) {
 	if g.state != nil {
 		delete(g.state)
 	}
+	if g.union_keys != nil do delete(g.union_keys)
+	if g.union_waves != nil do delete(g.union_waves)
+}
+
+grid_add_union :: proc(g: ^Grid, symbol: u8, values: string) {
+	wave: i32 = 0
+	for i in 0..<len(values) {
+		value := grid_value(g, values[i])
+		if value != 0xff {
+			wave |= i32(1) << uint(value)
+		}
+	}
+	append(&g.union_keys, symbol)
+	append(&g.union_waves, wave)
 }
 
 grid_value :: proc(g: ^Grid, ch: u8) -> u8 {
@@ -41,6 +57,11 @@ grid_value :: proc(g: ^Grid, ch: u8) -> u8 {
 grid_wave :: proc(g: ^Grid, ch: u8) -> i32 {
 	if ch == '*' {
 		return (i32(1) << uint(len(g.characters))) - 1
+	}
+	for i in 0..<len(g.union_keys) {
+		if g.union_keys[i] == ch {
+			return g.union_waves[i]
+		}
 	}
 	value := grid_value(g, ch)
 	return i32(1) << uint(value)
