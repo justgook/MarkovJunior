@@ -5,6 +5,7 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Text;
 
 static class Program
 {
@@ -16,6 +17,7 @@ static class Program
         int? forceAmount = null;
         int? forceSteps = null;
         string outputFolder = "output";
+        string outputFormat = "visual";
 
         foreach (string arg in args)
         {
@@ -24,6 +26,7 @@ static class Program
             else if (arg.StartsWith("--amount=")) forceAmount = int.Parse(arg[9..]);
             else if (arg.StartsWith("--steps=")) forceSteps = int.Parse(arg[8..]);
             else if (arg.StartsWith("--output=")) outputFolder = arg[9..];
+            else if (arg.StartsWith("--format=")) outputFormat = arg[9..];
             else if (modelFilter == null) modelFilter = arg;
             else throw new ArgumentException($"unknown argument: {arg}");
         }
@@ -83,7 +86,8 @@ static class Program
                 {
                     int[] colors = legend.Select(ch => customPalette[ch]).ToArray();
                     string outputname = gif ? $"{outputFolder}/{interpreter.counter}" : $"{outputFolder}/{name}_{seed}";
-                    if (FZ == 1 || iso)
+                    if (outputFormat == "text") WriteStateText(result, legend, FX, FY, FZ, outputname + ".txt");
+                    else if (FZ == 1 || iso)
                     {
                         var (bitmap, WIDTH, HEIGHT) = Graphics.Render(result, FX, FY, FZ, colors, pixelsize, gui);
                         if (gui > 0) GUI.Draw(name, interpreter.root, interpreter.current, bitmap, WIDTH, HEIGHT, customPalette);
@@ -95,5 +99,25 @@ static class Program
             }
         }
         Console.WriteLine($"time = {sw.ElapsedMilliseconds}");
+    }
+
+    static void WriteStateText(byte[] state, char[] legend, int MX, int MY, int MZ, string filename)
+    {
+        StringBuilder sb = new();
+        sb.AppendLine("MJSTATE 1");
+        sb.AppendLine($"size {MX} {MY} {MZ}");
+        sb.AppendLine($"legend {new string(legend)}");
+
+        for (int z = 0; z < MZ; z++)
+        {
+            if (MZ > 1) sb.AppendLine($"z {z}");
+            for (int y = 0; y < MY; y++)
+            {
+                for (int x = 0; x < MX; x++) sb.Append(legend[state[x + y * MX + z * MX * MY]]);
+                sb.AppendLine();
+            }
+        }
+
+        System.IO.File.WriteAllText(filename, sb.ToString());
     }
 }

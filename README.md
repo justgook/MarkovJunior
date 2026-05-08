@@ -22,6 +22,7 @@ Using these ideas, we construct [many probabilistic generators](models/) of dung
 
 Additional materials:
 1. [Xml syntax overview](syntax.md).
+1. [MJSTATE text grid format](docs/mjstate.md) and [MJBIN binary grid format proposal](docs/mjbin.md).
 2. Higher resolution screenshots and more seeds: [ModernHouse](https://github.com/mxgmn/Blog/blob/master/ModernHouse.md), [SeaVilla](https://github.com/mxgmn/Blog/blob/master/SeaVilla.md), [Apartemazements](https://github.com/mxgmn/Blog/blob/master/Apartemazements.md), [CarmaTower](https://github.com/mxgmn/Blog/blob/master/CarmaTower.md), [Escheresque](https://github.com/mxgmn/Blog/blob/master/Escheresque.md), [PillarsOfEternity](https://github.com/mxgmn/Blog/blob/master/PillarsOfEternity.md), [Surface](https://github.com/mxgmn/Blog/blob/master/RandomSurface.md), [Knots](https://twitter.com/ExUtumno/status/895688856304992256).
 3. Unofficial [technical notes](https://gist.github.com/dogles/a926ab890552cc7e45400a930398449d) by Dan Ogles and [code documentation](https://github.com/kaya3/MarkovJunior-docs) by Andrew Kay.
 

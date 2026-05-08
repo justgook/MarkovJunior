@@ -1,8 +1,37 @@
 package main
 
 import "core:fmt"
+import "core:os"
+import "core:strconv"
+import "core:strings"
 
 main :: proc() {
+	model := ""
+	amount := 1
+	output := "output"
+	format := "text"
+
+	for i in 1..<len(os.args) {
+		arg := os.args[i]
+		if strings.has_prefix(arg, "--amount=") {
+			parsed, ok := strconv.parse_int(arg[9:])
+			if ok {
+				amount = int(parsed)
+			}
+		} else if strings.has_prefix(arg, "--output=") {
+			output = arg[9:]
+		} else if strings.has_prefix(arg, "--format=") {
+			format = arg[9:]
+		} else if len(model) == 0 {
+			model = arg
+		}
+	}
+
+	if model == "Basic" {
+		run_basic(amount, output, format)
+		return
+	}
+
 	fmt.println("MarkovJunior Odin bootstrap")
 	fmt.println("Deterministic MJRandom test vector:")
 

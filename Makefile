@@ -6,7 +6,7 @@ CONFIGURATION ?= Release
 DOTNET_APP ?= $(DOTNET) run -c $(CONFIGURATION) --
 ODIN_APP ?= ./bin/markovjunior-odin
 COMPARE_MODEL ?= Basic
-COMPARE_ARGS ?= --amount=1
+COMPARE_ARGS ?= --amount=1 --format=text
 
 all: dotnet odin
 
