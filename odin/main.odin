@@ -10,6 +10,7 @@ main :: proc() {
 	amount := 1
 	output := "output"
 	format := "text"
+	steps := -1
 
 	for i in 1..<len(os.args) {
 		arg := os.args[i]
@@ -17,6 +18,11 @@ main :: proc() {
 			parsed, ok := strconv.parse_int(arg[9:])
 			if ok {
 				amount = int(parsed)
+			}
+		} else if strings.has_prefix(arg, "--steps=") {
+			parsed, ok := strconv.parse_int(arg[8:])
+			if ok {
+				steps = int(parsed)
 			}
 		} else if strings.has_prefix(arg, "--output=") {
 			output = arg[9:]
@@ -27,9 +33,10 @@ main :: proc() {
 		}
 	}
 
-	if model == "Basic" {
-		run_basic(amount, output, format)
-		return
+	if len(model) > 0 {
+		if run_xml_one_model(model, amount, output, format, steps) {
+			return
+		}
 	}
 
 	fmt.println("MarkovJunior Odin bootstrap")

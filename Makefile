@@ -1,4 +1,4 @@
-.PHONY: all dotnet odin run run-odin compare clean
+.PHONY: all dotnet odin run run-odin compare compare-diff compare-cmp clean
 
 DOTNET ?= dotnet
 ODIN ?= odin
@@ -6,7 +6,9 @@ CONFIGURATION ?= Release
 DOTNET_APP ?= $(DOTNET) run -c $(CONFIGURATION) --
 ODIN_APP ?= ./bin/markovjunior-odin
 COMPARE_MODEL ?= Basic
-COMPARE_ARGS ?= --amount=1 --format=text
+COMPARE_FORMAT ?= text
+COMPARE_ARGS ?= --amount=1 --format=$(COMPARE_FORMAT)
+COMPARE_TOOL ?= auto
 
 all: dotnet odin
 
@@ -28,7 +30,22 @@ compare: all
 	mkdir -p tmp/dotnet tmp/odin
 	$(DOTNET_APP) $(COMPARE_MODEL) $(COMPARE_ARGS) --output=tmp/dotnet
 	$(ODIN_APP) $(COMPARE_MODEL) $(COMPARE_ARGS) --output=tmp/odin
+	@if [ "$(COMPARE_TOOL)" = "diff" ] || { [ "$(COMPARE_TOOL)" = "auto" ] && [ "$(COMPARE_FORMAT)" = "text" ]; }; then \
+		$(MAKE) compare-diff; \
+	else \
+		$(MAKE) compare-cmp; \
+	fi
+
+compare-diff:
 	diff -ru tmp/dotnet tmp/odin
+
+compare-cmp:
+	@cd tmp/dotnet && find . -type f | sort > ../dotnet-files.txt
+	@cd tmp/odin && find . -type f | sort > ../odin-files.txt
+	diff -u tmp/dotnet-files.txt tmp/odin-files.txt
+	@while IFS= read -r file; do \
+		cmp "tmp/dotnet/$$file" "tmp/odin/$$file" || exit $$?; \
+	done < tmp/dotnet-files.txt
 
 clean:
 	$(DOTNET) clean
