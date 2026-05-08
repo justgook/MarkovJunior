@@ -8,8 +8,24 @@ using System.Collections.Generic;
 
 static class Program
 {
-    static void Main()
+    static void Main(string[] args)
     {
+        string modelFilter = null;
+        bool forceGif = false;
+        int? forceGui = null;
+        int? forceAmount = null;
+        int? forceSteps = null;
+
+        foreach (string arg in args)
+        {
+            if (arg == "--gif") forceGif = true;
+            else if (arg.StartsWith("--gui=")) forceGui = int.Parse(arg[6..]);
+            else if (arg.StartsWith("--amount=")) forceAmount = int.Parse(arg[9..]);
+            else if (arg.StartsWith("--steps=")) forceSteps = int.Parse(arg[8..]);
+            else if (modelFilter == null) modelFilter = arg;
+            else throw new ArgumentException($"unknown argument: {arg}");
+        }
+
         Stopwatch sw = Stopwatch.StartNew();
         var folder = System.IO.Directory.CreateDirectory("output");
         foreach (var file in folder.GetFiles()) file.Delete();
@@ -21,6 +37,7 @@ static class Program
         foreach (XElement xmodel in xdoc.Root.Elements("model"))
         {
             string name = xmodel.Get<string>("name");
+            if (modelFilter != null && name != modelFilter) continue;
             int linearSize = xmodel.Get("size", -1);
             int dimension = xmodel.Get("d", 2);
             int MX = xmodel.Get("length", linearSize);
@@ -44,14 +61,14 @@ static class Program
                 continue;
             }
 
-            int amount = xmodel.Get("amount", 2);
+            int amount = forceAmount ?? xmodel.Get("amount", 2);
             int pixelsize = xmodel.Get("pixelsize", 4);
             string seedString = xmodel.Get<string>("seeds", null);
             int[] seeds = seedString?.Split(' ').Select(s => int.Parse(s)).ToArray();
-            bool gif = xmodel.Get("gif", false);
+            bool gif = forceGif || xmodel.Get("gif", false);
             bool iso = xmodel.Get("iso", false);
-            int steps = xmodel.Get("steps", gif ? 1000 : 50000);
-            int gui = xmodel.Get("gui", 0);
+            int steps = forceSteps ?? xmodel.Get("steps", gif ? 1000 : 50000);
+            int gui = forceGui ?? xmodel.Get("gui", 0);
             if (gif) amount = 1;
 
             Dictionary<char, int> customPalette = new(palette);
