@@ -15,6 +15,7 @@ static class Program
         int? forceGui = null;
         int? forceAmount = null;
         int? forceSteps = null;
+        string outputFolder = "output";
 
         foreach (string arg in args)
         {
@@ -22,12 +23,13 @@ static class Program
             else if (arg.StartsWith("--gui=")) forceGui = int.Parse(arg[6..]);
             else if (arg.StartsWith("--amount=")) forceAmount = int.Parse(arg[9..]);
             else if (arg.StartsWith("--steps=")) forceSteps = int.Parse(arg[8..]);
+            else if (arg.StartsWith("--output=")) outputFolder = arg[9..];
             else if (modelFilter == null) modelFilter = arg;
             else throw new ArgumentException($"unknown argument: {arg}");
         }
 
         Stopwatch sw = Stopwatch.StartNew();
-        var folder = System.IO.Directory.CreateDirectory("output");
+        var folder = System.IO.Directory.CreateDirectory(outputFolder);
         foreach (var file in folder.GetFiles()) file.Delete();
 
         Dictionary<char, int> palette = XDocument.Load("resources/palette.xml").Root.Elements("color").ToDictionary(x => x.Get<char>("symbol"), x => (255 << 24) + Convert.ToInt32(x.Get<string>("value"), 16));
@@ -80,7 +82,7 @@ static class Program
                 foreach ((byte[] result, char[] legend, int FX, int FY, int FZ) in interpreter.Run(seed, steps, gif))
                 {
                     int[] colors = legend.Select(ch => customPalette[ch]).ToArray();
-                    string outputname = gif ? $"output/{interpreter.counter}" : $"output/{name}_{seed}";
+                    string outputname = gif ? $"{outputFolder}/{interpreter.counter}" : $"{outputFolder}/{name}_{seed}";
                     if (FZ == 1 || iso)
                     {
                         var (bitmap, WIDTH, HEIGHT) = Graphics.Render(result, FX, FY, FZ, colors, pixelsize, gui);
