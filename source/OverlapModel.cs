@@ -159,7 +159,7 @@ class OverlapNode : WFCNode
                 }
         }
 
-        Random r = new();
+        MJRandom r = new(ip.random.Next());
         for (int i = 0; i < votes.Length; i++)
         {
             double max = -1.0;

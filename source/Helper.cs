@@ -92,7 +92,7 @@ static class Helper
 
 static class RandomHelper
 {
-    public static T Random<T>(this List<T> list, Random random) => list[random.Next(list.Count)];
+    public static T Random<T>(this List<T> list, MJRandom random) => list[random.Next(list.Count)];
     
     public static int Random(this double[] weights, double r)
     {
@@ -109,7 +109,7 @@ static class RandomHelper
         return 0;
     }
 
-    public static void Shuffle(this int[] array, Random random)
+    public static void Shuffle(this int[] array, MJRandom random)
     {
         for (int i = 0; i < array.Length; i++)
         {

@@ -32,7 +32,7 @@ static class Program
 
         Dictionary<char, int> palette = XDocument.Load("resources/palette.xml").Root.Elements("color").ToDictionary(x => x.Get<char>("symbol"), x => (255 << 24) + Convert.ToInt32(x.Get<string>("value"), 16));
 
-        Random meta = new();
+        MJRandom meta = new(0);
         XDocument xdoc = XDocument.Load("models.xml", LoadOptions.SetLineInfo);
         foreach (XElement xmodel in xdoc.Root.Elements("model"))
         {

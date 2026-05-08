@@ -289,7 +289,7 @@ class TileNode : WFCNode
 
     protected override void UpdateState()
     {
-        Random r = new();
+        MJRandom r = new(ip.random.Next());
         for (int z = 0; z < grid.MZ; z++) for (int y = 0; y < grid.MY; y++) for (int x = 0; x < grid.MX; x++)
                 {
                     bool[] w = wave.data[x + y * grid.MX + z * grid.MX * grid.MY];

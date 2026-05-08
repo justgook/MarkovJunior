@@ -65,7 +65,7 @@ abstract class WFCNode : Branch
     }
 
     bool firstgo = true;
-    Random random;
+    MJRandom random;
     public override bool Go()
     {
         if (n >= 0) return base.Go();
@@ -94,7 +94,7 @@ abstract class WFCNode : Branch
             int? goodseed = GoodSeed();
             if (goodseed == null) return false;
 
-            random = new Random((int)goodseed);
+            random = new MJRandom((int)goodseed);
             stacksize = 0;
             wave.CopyFrom(startwave, propagator.Length, shannon);
             firstgo = false;
@@ -124,7 +124,7 @@ abstract class WFCNode : Branch
         {
             int observationsSoFar = 0;
             int seed = ip.random.Next();
-            random = new Random(seed);
+            random = new MJRandom(seed);
             stacksize = 0;
             wave.CopyFrom(startwave, propagator.Length, shannon);
 
@@ -154,7 +154,7 @@ abstract class WFCNode : Branch
         return null;
     }
 
-    int NextUnobservedNode(Random random)
+    int NextUnobservedNode(MJRandom random)
     {
         int MX = grid.MX, MY = grid.MY, MZ = grid.MZ;
         double min = 1E+4;
@@ -178,7 +178,7 @@ abstract class WFCNode : Branch
         return argmin;
     }
 
-    void Observe(int node, Random random)
+    void Observe(int node, MJRandom random)
     {
         bool[] w = wave.data[node];
         for (int t = 0; t < P; t++) distribution[t] = w[t] ? weights[t] : 0.0;

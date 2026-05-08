@@ -33,7 +33,7 @@ static class Search
         visited.Add(present, 0);
 
         PriorityQueue<int, double> frontier = new();
-        Random random = new(seed);
+        MJRandom random = new(seed);
         frontier.Enqueue(0, rootBoard.Rank(random, depthCoefficient));
         int frontierLength = 1;
 
@@ -263,7 +263,7 @@ class Board
         this.forwardEstimate = forwardEstimate;
     }
 
-    public double Rank(Random random, double depthCoefficient)
+    public double Rank(MJRandom random, double depthCoefficient)
     {
         double result = depthCoefficient < 0.0 ? 1000 - depth : forwardEstimate + backwardEstimate + 2.0 * depthCoefficient * depth;
         return result + 0.0001 * random.NextDouble();

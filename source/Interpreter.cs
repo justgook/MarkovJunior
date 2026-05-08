@@ -11,7 +11,7 @@ class Interpreter
     Grid startgrid;
 
     bool origin;
-    public Random random;
+    public MJRandom random;
 
     public List<(int, int, int)> changes;
     public List<int> first;
@@ -51,7 +51,7 @@ class Interpreter
 
     public IEnumerable<(byte[], char[], int, int, int)> Run(int seed, int steps, bool gif)
     {
-        random = new Random(seed);
+        random = new MJRandom(seed);
         grid = startgrid;
         grid.Clear();
         if (origin) grid.state[grid.MX / 2 + (grid.MY / 2) * grid.MX + (grid.MZ / 2) * grid.MX * grid.MY] = 1;

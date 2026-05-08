@@ -68,7 +68,7 @@ class PathNode : Node
 
         if (!startPositions.Where(p => generations[p.x + p.y * MX + p.z * MX * MY] > 0).Any()) return false;
         
-        Random localRandom = new(ip.random.Next());
+        MJRandom localRandom = new(ip.random.Next());
         double min = MX * MY * MZ, max = -2;
         (int, int, int) argmin = (-1, -1, -1), argmax = (-1, -1, -1);
 
@@ -110,7 +110,7 @@ class PathNode : Node
         return true;
     }
 
-    (int, int, int) Direction(int x, int y, int z, int dx, int dy, int dz, int[] generations, Random random)
+    (int, int, int) Direction(int x, int y, int z, int dx, int dy, int dz, int[] generations, MJRandom random)
     {
         List<(int x, int y, int z)> candidates = new();
         int MX = grid.MX, MY = grid.MY, MZ = grid.MZ;

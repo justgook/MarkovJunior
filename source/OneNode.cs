@@ -72,7 +72,7 @@ class OneNode : RuleNode
         }
     }
 
-    (int r, int x, int y, int z) RandomMatch(Random random)
+    (int r, int x, int y, int z) RandomMatch(MJRandom random)
     {
         if (potentials != null)
         {
