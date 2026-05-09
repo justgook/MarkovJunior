@@ -98,7 +98,7 @@ run_xml_one_model :: proc(model_name: string, amount: int, output_folder: string
 
 	root := xml.Element_ID(0)
 	root_kind := doc.elements[root].ident
-	if root_kind != "one" && root_kind != "all" && root_kind != "prl" && root_kind != "sequence" {
+	if root_kind != "one" && root_kind != "all" && root_kind != "prl" && root_kind != "path" && root_kind != "convolution" && root_kind != "sequence" && root_kind != "markov" {
 		return false
 	}
 
@@ -110,13 +110,32 @@ run_xml_one_model :: proc(model_name: string, amount: int, output_folder: string
 		seed := mj_random_next(&meta)
 		random := mj_random_init(seed)
 		g := grid_init(config.mx, config.my, config.mz, values, origin)
+		g.folder = xml_attr(doc, root, "folder", "")
 		load_unions(doc, root, &g)
-		run_xml_element(doc, root, &g, &random, config.steps)
+		if (root_kind == "sequence" || root_kind == "markov") && persistent_supported_tree(doc, root) {
+			run_persistent_markov_root(doc, root, &g, &random, config.steps)
+		} else {
+			run_xml_element(doc, root, &g, &random, config.steps)
+		}
 		if format == "text" {
 			write_state_text(fmt.tprintf("%s/%s_%d.txt", output_folder, model_name, seed), g.state, g.mx, g.my, g.mz, g.characters)
 		}
 		grid_destroy(&g)
 		fmt.printf("%s > DONE\n", model_name)
+	}
+	return true
+}
+
+persistent_supported_tree :: proc(doc: ^xml.Document, id: xml.Element_ID) -> bool {
+	kind := doc.elements[id].ident
+	if kind != "one" && kind != "all" && kind != "prl" && kind != "path" && kind != "convolution" && kind != "map" && kind != "markov" && kind != "sequence" && kind != "rule" && kind != "union" && kind != "field" && kind != "observe" {
+		return false
+	}
+	for value in doc.elements[id].value {
+		#partial switch child_id in value {
+		case xml.Element_ID:
+			if !persistent_supported_tree(doc, child_id) do return false
+		}
 	}
 	return true
 }
@@ -149,12 +168,30 @@ run_xml_element :: proc(doc: ^xml.Document, id: xml.Element_ID, g: ^Grid, random
 				if child_kind == "union" {
 					continue
 				}
-				if child_kind == "one" || child_kind == "all" || child_kind == "prl" || child_kind == "sequence" {
+				if child_kind == "one" || child_kind == "all" || child_kind == "prl" || child_kind == "sequence" || child_kind == "markov" {
 					run_xml_element(doc, child_id, g, random, default_steps)
 				}
 			}
 		}
 		return true
+	}
+
+	if kind == "markov" {
+		steps := xml_attr_int(doc, id, "steps", 0)
+		if steps == 0 && id == 0 do steps = default_steps
+		return run_persistent_markov_root(doc, id, g, random, steps)
+	}
+
+	if kind == "path" {
+		p := path_load(doc, id, g)
+		changes := make([dynamic]Cell)
+		defer delete(changes)
+		return path_go(&p, g, random, &changes)
+	}
+	if kind == "convolution" {
+		c := convolution_load(doc, id, g)
+		defer convolution_destroy(&c)
+		return convolution_go(&c, g, random)
 	}
 
 	if kind != "one" && kind != "all" && kind != "prl" {
@@ -176,20 +213,93 @@ run_xml_element :: proc(doc: ^xml.Document, id: xml.Element_ID, g: ^Grid, random
 	}
 
 	if kind == "one" {
-		run_one_node(g, rules_dyn[:], random, steps)
+		return run_one_node(g, rules_dyn[:], random, steps)
 	} else if kind == "all" {
-		run_all_node(g, rules_dyn[:], random, steps)
+		return run_all_node(g, rules_dyn[:], random, steps)
 	} else {
-		run_parallel_node(g, rules_dyn[:], random, steps)
+		return run_parallel_node(g, rules_dyn[:], random, steps)
 	}
-	return true
 }
 
-load_rules_for_element :: proc(doc: ^xml.Document, id: xml.Element_ID, g: ^Grid, rules: ^[dynamic]Rule) {
+run_markov_element :: proc(doc: ^xml.Document, id: xml.Element_ID, g: ^Grid, random: ^MJRandom, default_steps: int) -> bool {
+	steps := xml_attr_int(doc, id, "steps", 0)
+	if steps == 0 && id == 0 {
+		steps = default_steps
+	}
+	counter := 0
+	changed_any := false
+	for steps <= 0 || counter < steps {
+		changed := false
+		for value in doc.elements[id].value {
+			#partial switch child_id in value {
+			case xml.Element_ID:
+				child_kind := doc.elements[child_id].ident
+				if child_kind == "union" {
+					continue
+				}
+				if child_kind == "one" || child_kind == "all" || child_kind == "prl" || child_kind == "sequence" || child_kind == "markov" {
+					if run_xml_element_step(doc, child_id, g, random) {
+						changed = true
+						break
+					}
+				}
+			}
+		}
+		if !changed do break
+		changed_any = true
+		counter += 1
+	}
+	return changed_any
+}
+
+run_xml_element_step :: proc(doc: ^xml.Document, id: xml.Element_ID, g: ^Grid, random: ^MJRandom) -> bool {
+	kind := doc.elements[id].ident
+	if kind == "markov" {
+		for value in doc.elements[id].value {
+			#partial switch child_id in value {
+			case xml.Element_ID:
+				if run_xml_element_step(doc, child_id, g, random) do return true
+			}
+		}
+		return false
+	}
+	if kind == "sequence" {
+		for value in doc.elements[id].value {
+			#partial switch child_id in value {
+			case xml.Element_ID:
+				child_kind := doc.elements[child_id].ident
+				if child_kind == "union" do continue
+				if child_kind == "one" || child_kind == "all" || child_kind == "prl" || child_kind == "sequence" || child_kind == "markov" {
+					if !run_xml_element(doc, child_id, g, random, 0) do return false
+				}
+			}
+		}
+		return true
+	}
+	if kind != "one" && kind != "all" && kind != "prl" do return false
+
+	rules_dyn := make([dynamic]Rule)
+	defer {
+		for i in 0..<len(rules_dyn) {
+			rule_destroy(&rules_dyn[i])
+		}
+		delete(rules_dyn)
+	}
+	load_rules_for_element(doc, id, g, &rules_dyn)
+	if kind == "one" do return run_one_node(g, rules_dyn[:], random, 1)
+	if kind == "all" do return run_all_node(g, rules_dyn[:], random, 1)
+	return run_parallel_node(g, rules_dyn[:], random, 1)
+}
+
+load_rules_for_element :: proc(doc: ^xml.Document, id: xml.Element_ID, g: ^Grid, rules: ^[dynamic]Rule, parent_symmetry := "") {
 	in_root := xml_attr(doc, id, "in", "")
 	out_root := xml_attr(doc, id, "out", "")
-	if in_root != "" && out_root != "" {
-		append_rule_symmetries(g, rules, rule_init(g, in_root, out_root, xml_attr_f64(doc, id, "p", 1.0)), xml_attr(doc, id, "symmetry", ""))
+	file_root := xml_attr(doc, id, "file", "")
+	fin_root := xml_attr(doc, id, "fin", "")
+	fout_root := xml_attr(doc, id, "fout", "")
+	legend_root := xml_attr(doc, id, "legend", "")
+	if file_root != "" || (in_root != "" && out_root != "") || fin_root != "" || fout_root != "" {
+		append_rule_symmetries(g, rules, rule_init_mixed(g, in_root, out_root, fin_root, fout_root, file_root, legend_root, xml_attr_f64(doc, id, "p", 1.0)), xml_attr(doc, id, "symmetry", parent_symmetry))
 		return
 	}
 
@@ -197,8 +307,8 @@ load_rules_for_element :: proc(doc: ^xml.Document, id: xml.Element_ID, g: ^Grid,
 		#partial switch child_id in value {
 		case xml.Element_ID:
 			if doc.elements[child_id].ident == "rule" {
-				symmetry := xml_attr(doc, child_id, "symmetry", xml_attr(doc, id, "symmetry", ""))
-				append_rule_symmetries(g, rules, rule_init(g, xml_attr(doc, child_id, "in"), xml_attr(doc, child_id, "out"), xml_attr_f64(doc, child_id, "p", 1.0)), symmetry)
+				symmetry := xml_attr(doc, child_id, "symmetry", xml_attr(doc, id, "symmetry", parent_symmetry))
+				append_rule_symmetries(g, rules, rule_init_mixed(g, xml_attr(doc, child_id, "in", ""), xml_attr(doc, child_id, "out", ""), xml_attr(doc, child_id, "fin", ""), xml_attr(doc, child_id, "fout", ""), xml_attr(doc, child_id, "file", ""), xml_attr(doc, child_id, "legend", ""), xml_attr_f64(doc, child_id, "p", 1.0)), symmetry)
 			}
 		}
 	}

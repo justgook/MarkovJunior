@@ -6,6 +6,7 @@ Grid :: struct {
 	my:          int,
 	mz:          int,
 	characters:  string,
+	folder:      string,
 	union_keys:  [dynamic]u8,
 	union_waves: [dynamic]i32,
 }
@@ -52,6 +53,14 @@ grid_value :: proc(g: ^Grid, ch: u8) -> u8 {
 		}
 	}
 	return 0xff
+}
+
+grid_wave_string :: proc(g: ^Grid, s: string) -> i32 {
+	wave: i32 = 0
+	for i in 0..<len(s) {
+		wave |= grid_wave(g, s[i])
+	}
+	return wave
 }
 
 grid_wave :: proc(g: ^Grid, ch: u8) -> i32 {

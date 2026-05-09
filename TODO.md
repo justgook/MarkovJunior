@@ -26,6 +26,23 @@ Goal: keep the Odin port behavior-compatible with the C# implementation, using `
 - [~] Root `<sequence>` support started; `Cycles` and `Noise` compare pass.
 - [~] 2D symmetry subgroup support started, e.g. `symmetry="(x)"`.
 - [x] Union input symbols implemented; `BasicDungeonGrowth` compare passes.
+- [x] `source/` and `odin/` file-name sync enforced by `make port-sync`.
+- [~] Experimental `<markov>` support added.
+  - Added persistent Odin node state for root `<markov>` with persistent child `<one>` match lists/history.
+  - Used temporary trace instrumentation to compare selected matches; source changes were not kept.
+  - Fixed Odin stale-match pruning to match C# `OneNode.RandomMatch()` RNG consumption.
+  - `Backtracker` full compare passes; `Digger`, `MazeBacktracker`, `RegularSAWRestart`, and `SAWRestart` pass to 100 steps.
+  - Persistent `<all>` inside root `<markov>` implemented; `NoDeadEnds` and `PutColoredLs` compare pass.
+  - Persistent root `<sequence>` / Branch lifecycle enabled for supported trees; `BasicPartitioning` and `BacktrackerCycle` full compare pass.
+  - Parent symmetry propagation in persistent branches started; several sequence-only models pass limited-step compares.
+  - Implemented C#-style `current` branch pointer/parent handoff; fixed nested branch timing. `BasicBrickWall` full compare now passes.
+  - Persistent `<prl>` inside branches implemented; `Forest` full compare passes and several prl+markov sequence models pass limited-step compares.
+  - Rule resource loading implemented for PNG/VOX `file`/`fin`/`fout`; `DualRetraction3D` limited-step compare passes.
+  - `PathNode` port started in `odin/Path.odin`; several path models pass limited-step compares.
+  - `ConvolutionNode` port started in `odin/Convolution.odin`; deterministic/non-probability convolution models pass limited-step compares.
+  - Basic `Field` heuristic support started for persistent `one/all`; multiple field-driven models pass limited-step compares.
+  - Basic non-search `observe` support started; several observe+field path models pass limited-step compares.
+  - `MapNode` port started in `odin/Map.odin`; 3D map pipeline `OddScale3D` passes limited-step compare. Simple 2D map models still diverge and need follow-up.
 
 ## Copied / ported files
 
@@ -61,6 +78,7 @@ Goal: keep the Odin port behavior-compatible with the C# implementation, using `
   - No general Node hierarchy yet, but root `one/all/prl/sequence` execution exists.
 - [~] `Interpreter.cs` -> `Interpreter.odin`
   - XML loading and execution for root `one/all/prl/sequence` exists.
+  - Experimental `markov` dispatch exists, but not C#-exact yet.
 - [ ] `XMLHelper.cs` -> `XMLHelper.odin`
 - [ ] `SymmetryHelper.cs` -> `SymmetryHelper.odin`
 - [ ] `Graphics.cs` -> `Graphics.odin`

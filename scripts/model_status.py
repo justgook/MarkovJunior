@@ -20,6 +20,101 @@ PASS = {
     ("Cycles", 0): "full",
     ("Noise", 0): "full",
     ("BasicDungeonGrowth", 0): "full",
+    ("Backtracker", 0): "full",
+    ("Digger", 0): "steps=100",
+    ("MazeBacktracker", 0): "steps=100",
+    ("RegularSAWRestart", 0): "steps=100",
+    ("SAWRestart", 0): "steps=100",
+    ("NoDeadEnds", 0): "full",
+    ("NoDeadEnds", 1): "steps=100",
+    ("PutColoredLs", 0): "full",
+    ("BasicPartitioning", 0): "full",
+    ("BacktrackerCycle", 0): "full",
+    ("GrowthCompetition", 0): "steps=200",
+    ("LoopGrowth", 0): "steps=200",
+    ("SmoothTrail", 0): "steps=200",
+    ("StochasticVoronoi", 0): "steps=200",
+    ("Voronoi", 0): "steps=200",
+    ("River", 0): "steps=200",
+    ("BasicBrickWall", 0): "full",
+    ("MultiHeadedWalk", 0): "steps=200",
+    ("Flowers", 0): "steps=200",
+    ("HamiltonianPath", 0): "steps=200",
+    ("HamiltonianPaths", 0): "steps=200",
+    ("MultiHeadedWalkDungeon", 0): "steps=200",
+    ("NystromDungeon", 0): "steps=200",
+    ("Texture", 0): "steps=200",
+    ("Forest", 0): "full",
+    ("FireNoise", 0): "steps=200",
+    ("MultiHeadedDungeon", 0): "steps=200",
+    ("StrangeDungeon", 0): "steps=200",
+    ("Tetris", 0): "steps=200",
+    ("SmartSAW", 0): "steps=200",
+    ("FindLongCycle", 0): "steps=200",
+    ("DualRetraction", 0): "steps=500",
+    ("GrowthContraction", 0): "steps=500",
+    ("GrowthWalk", 0): "steps=500",
+    ("IrregularMazeGrowth", 0): "steps=500",
+    ("MazeBacktracker", 1): "steps=500",
+    ("MazeGrowth", 0): "steps=500",
+    ("MazeGrowth", 1): "steps=500",
+    ("MazeTrail", 0): "steps=500",
+    ("MazeTrail", 1): "steps=500",
+    ("NestedGrowth", 0): "steps=500",
+    ("Noise", 1): "steps=500",
+    ("ParallelGrowth", 0): "steps=500",
+    ("Push", 0): "steps=500",
+    ("RainbowGrowth", 0): "steps=500",
+    ("RegularSAW", 0): "steps=500",
+    ("RegularSAW", 1): "steps=500",
+    ("RegularSAWRestart", 1): "steps=500",
+    ("River", 1): "steps=500",
+    ("StochasticVoronoi", 1): "steps=500",
+    ("StrangeDungeon", 1): "steps=500",
+    ("Voronoi", 1): "steps=500",
+    ("DualRetraction3D", 0): "steps=500",
+    ("SokobanLevel1", 0): "steps=500",
+    ("SokobanLevel2", 0): "steps=500",
+    ("BasicDijkstraDungeon", 0): "steps=500",
+    ("BasicDijkstraFill", 0): "steps=500",
+    ("BernoulliPercolation", 0): "steps=500",
+    ("Percolation", 0): "steps=500",
+    ("SmarterDigger", 0): "steps=500",
+    ("Circuit", 0): "steps=500",
+    ("Cave", 0): "steps=100",
+    ("CaveContour", 0): "steps=100",
+    ("ConnectedCaves", 0): "steps=100",
+    ("ConstrainedCaves", 0): "steps=100",
+    ("Counting", 0): "steps=100",
+    ("GameOfLife", 0): "steps=100",
+    ("Hills", 0): "steps=100",
+    ("OpenCave", 0): "steps=100",
+    ("OpenCave3D", 0): "steps=100",
+    ("BiasedGrowth", 0): "steps=200",
+    ("BiasedMazeGrowth", 0): "steps=200",
+    ("DenseSAW", 0): "steps=200",
+    ("GrowTo", 0): "steps=200",
+    ("StrangeNoise", 0): "steps=200",
+    ("BiasedGrowthContraction", 0): "steps=200",
+    ("BiasedVoronoi", 0): "steps=200",
+    ("CentralCrawlers", 0): "steps=200",
+    ("Coupling", 0): "steps=200",
+    ("CrawlersChase", 0): "steps=200",
+    ("Dwarves", 0): "steps=200",
+    ("PaintCompetition", 0): "steps=200",
+    ("Keys", 0): "steps=200",
+    ("OrganicMechanic", 0): "steps=200",
+    ("Division", 0): "steps=200",
+    ("Rosettes", 0): "steps=200",
+    ("SoftPath", 0): "steps=200",
+    ("WolfBasedApproach", 0): "steps=200",
+    ("DiagonalPath", 0): "steps=200",
+    ("BishopParity", 0): "steps=200",
+    ("SnellLaw", 0): "steps=200",
+    ("StormySnellLaw", 0): "steps=200",
+    ("EuclideanPath", 0): "steps=200",
+    ("CrossCountry", 0): "steps=200",
+    ("OddScale3D", 0): "steps=200",
 }
 
 PARTIAL = {
@@ -32,8 +127,8 @@ PARTIAL = {
     ("ForestFire", 0): "root <prl>; tested to 10 steps",
 }
 
-IMPLEMENTED_ROOTS = {"one", "all", "prl", "sequence"}
-IMPLEMENTED_TAGS = {"one", "all", "prl", "rule", "sequence", "union"}
+IMPLEMENTED_ROOTS = {"one", "all", "prl", "path", "convolution", "sequence", "markov"}
+IMPLEMENTED_TAGS = {"one", "all", "prl", "path", "convolution", "field", "observe", "map", "rule", "sequence", "union", "markov"}
 
 
 def model_entries():
@@ -49,6 +144,7 @@ def model_entries():
             continue
         xroot = ET.parse(path).getroot()
         tags = collections.Counter(elem.tag for elem in xroot.iter())
+        uses_file_rule = any("file" in elem.attrib or "fin" in elem.attrib or "fout" in elem.attrib for elem in xroot.iter())
         entries.append({
             "global_index": global_index,
             "model_index": model_index,
@@ -57,6 +153,7 @@ def model_entries():
             "root": xroot.tag,
             "tags": tags,
             "path": path,
+            "uses_file_rule": uses_file_rule,
         })
     return entries
 
@@ -67,6 +164,8 @@ def support_status(entry):
         return "PASS", PASS[key]
     tags = set(entry["tags"])
     if entry["root"] in IMPLEMENTED_ROOTS and tags <= IMPLEMENTED_TAGS:
+        if "markov" in tags:
+            return "LIKELY", "markov subset implemented; needs compare or persistent all/prl support"
         return "LIKELY", "root node subset implemented; needs compare"
     missing = sorted(tags - IMPLEMENTED_TAGS)
     if entry["root"] not in IMPLEMENTED_ROOTS:

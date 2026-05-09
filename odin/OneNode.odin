@@ -8,7 +8,7 @@ Cell :: struct {
 	x, y, z: int,
 }
 
-run_one_node :: proc(g: ^Grid, rules: []Rule, random: ^MJRandom, steps: int) {
+run_one_node :: proc(g: ^Grid, rules: []Rule, random: ^MJRandom, steps: int) -> bool {
 	matches := make([dynamic]Match)
 	defer delete(matches)
 	match_mask := make([][]bool, len(rules))
@@ -27,6 +27,7 @@ run_one_node :: proc(g: ^Grid, rules: []Rule, random: ^MJRandom, steps: int) {
 	defer delete(changes)
 
 	counter := 0
+	changed := false
 	for (steps <= 0 || counter < steps) && len(matches) > 0 {
 		for len(matches) > 0 {
 			match_index := int(mj_random_next_max(random, i32(len(matches))))
@@ -41,10 +42,12 @@ run_one_node :: proc(g: ^Grid, rules: []Rule, random: ^MJRandom, steps: int) {
 				one_apply(g, &rules[m.r], m.x, m.y, m.z, &changes)
 				one_add_around_changes(g, rules, changes[:], &matches, match_mask)
 				counter += 1
+				changed = true
 				break
 			}
 		}
 	}
+	return changed
 }
 
 one_initial_scan :: proc(g: ^Grid, rules: []Rule, matches: ^[dynamic]Match, match_mask: [][]bool) {

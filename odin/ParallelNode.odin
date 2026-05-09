@@ -1,12 +1,13 @@
 package main
 
-run_parallel_node :: proc(g: ^Grid, rules: []Rule, random: ^MJRandom, steps: int) {
+run_parallel_node :: proc(g: ^Grid, rules: []Rule, random: ^MJRandom, steps: int) -> bool {
 	current_changes := make([dynamic]Cell)
 	defer delete(current_changes)
 	newstate := make([]u8, len(g.state))
 	defer delete(newstate)
 
 	counter := 0
+	changed := false
 	for steps <= 0 || counter < steps {
 		clear(&current_changes)
 		// C# ParallelNode never sets lastMatchedTurn, so RuleNode.Go performs a full scan every turn.
@@ -22,7 +23,9 @@ run_parallel_node :: proc(g: ^Grid, rules: []Rule, random: ^MJRandom, steps: int
 		}
 
 		counter += 1
+		changed = true
 	}
+	return changed
 }
 
 parallel_initial_scan :: proc(g: ^Grid, rules: []Rule, random: ^MJRandom, newstate: []u8, changes: ^[dynamic]Cell) {

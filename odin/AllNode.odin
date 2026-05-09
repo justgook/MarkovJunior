@@ -1,6 +1,6 @@
 package main
 
-run_all_node :: proc(g: ^Grid, rules: []Rule, random: ^MJRandom, steps: int) {
+run_all_node :: proc(g: ^Grid, rules: []Rule, random: ^MJRandom, steps: int) -> bool {
 	matches := make([dynamic]Match)
 	defer delete(matches)
 	match_mask := make([][]bool, len(rules))
@@ -22,6 +22,7 @@ run_all_node :: proc(g: ^Grid, rules: []Rule, random: ^MJRandom, steps: int) {
 	defer delete(current_changes)
 
 	counter := 0
+	changed := false
 	first_turn := true
 	for steps <= 0 || counter < steps {
 		clear(&matches)
@@ -62,7 +63,9 @@ run_all_node :: proc(g: ^Grid, rules: []Rule, random: ^MJRandom, steps: int) {
 		}
 
 		counter += 1
+		changed = true
 	}
+	return changed
 }
 
 all_fit :: proc(g: ^Grid, rule: ^Rule, x, y, z: int, mask: []bool, changes: ^[dynamic]Cell) {

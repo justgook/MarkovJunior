@@ -1,4 +1,4 @@
-.PHONY: all dotnet odin run run-odin compare compare-diff compare-cmp model-status clean
+.PHONY: all dotnet odin run run-odin compare compare-diff compare-cmp model-status port-sync clean
 
 DOTNET ?= dotnet
 ODIN ?= odin
@@ -49,6 +49,9 @@ compare-cmp:
 
 model-status:
 	./scripts/model_status.py --write MODEL_STATUS.md
+
+port-sync:
+	./scripts/check_port_sync.py
 
 clean:
 	$(DOTNET) clean
