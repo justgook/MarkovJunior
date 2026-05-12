@@ -167,7 +167,7 @@ tile_load_vox_ints :: proc(path: string) -> ([]int, int, int, int) {
 tile_ords :: proc(data: []int, uniques: ^[dynamic]int) -> []u8 { r:=make([]u8,len(data)); for d,i in data { ord:=-1; for u,j in uniques do if u==d {ord=j; break}; if ord<0 {ord=len(uniques); append(uniques,d)}; r[i]=u8(ord)}; return r }
 
 tile_z_rotate :: proc(p: []u8, s, sz: int) -> []u8 { q:=make([]u8,len(p)); for z in 0..<sz do for y in 0..<s do for x in 0..<s do q[x+y*s+z*s*s]=p[y+(s-1-x)*s+z*s*s]; return q }
-tile_y_rotate :: proc(p: []u8, s, sz: int) -> []u8 { q:=make([]u8,len(p)); for z in 0..<s do for y in 0..<s do for x in 0..<sz do q[x+y*sz+z*sz*s]=p[s-1-z+y*s+x*s*s]; return q }
+tile_y_rotate :: proc(p: []u8, s, sz: int) -> []u8 { q:=make([]u8,len(p)); for z in 0..<sz do for y in 0..<s do for x in 0..<s do q[x+y*s+z*s*s]=p[z+y*s+(s-1-x)*s*s]; return q }
 tile_x_rotate :: proc(p: []u8, s, sz: int) -> []u8 { q:=make([]u8,len(p)); for z in 0..<s do for y in 0..<sz do for x in 0..<s do q[x+y*s+z*s*sz]=p[x+z*s+(s-1-y)*s*s]; return q }
 tile_x_reflect :: proc(p: []u8, s, sz: int) -> []u8 { q:=make([]u8,len(p)); for z in 0..<sz do for y in 0..<s do for x in 0..<s do q[x+y*s+z*s*s]=p[(s-1-x)+y*s+z*s*s]; return q }
 tile_y_reflect :: proc(p: []u8, s, sz: int) -> []u8 { q:=make([]u8,len(p)); for z in 0..<sz do for y in 0..<s do for x in 0..<s do q[x+y*s+z*s*s]=p[x+(s-1-y)*s+z*s*s]; return q }

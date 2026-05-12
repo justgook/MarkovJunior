@@ -6,9 +6,9 @@ Tracks `models/*.xml` coverage for the Odin port.
 
 - `models.xml` entries with files: 155
 - unique model XML files: 137
-- passing/recorded: 139
+- passing/recorded: 145
 - likely supported but unverified: 0
-- TODO / unsupported: 16
+- TODO / unsupported: 10
 
 ## Legend
 
@@ -52,7 +52,7 @@ Tracks `models/*.xml` coverage for the Odin port.
 | PASS | `ChainDungeonMaze` | 0 | `sequence` | `all:4 convchain:1 markov:1 one:2 path:1 sequence:1` | steps=200 |
 | PASS | `ChainMaze` | 0 | `sequence` | `all:1 convchain:1 sequence:1` | steps=200 |
 | PASS | `Circuit` | 0 | `sequence` | `all:6 markov:2 one:4 path:1 prl:2 rule:12 sequence:1` | steps=500 |
-| TODO | `ClosedSurface` | 0 | `sequence` | `all:2 rule:1 sequence:1 wfc:1` | tile-based WFC not ported yet |
+| PASS | `ClosedSurface` | 0 | `sequence` | `all:2 rule:1 sequence:1 wfc:1` | steps=500 |
 | TODO | `ColoredKnots` | 0 | `sequence` | `all:3 markov:1 one:1 rule:30 sequence:1 wfc:1` | tile-based WFC not ported yet |
 | PASS | `CompleteSAW` | 0 | `sequence` | `all:1 observe:3 one:1 rule:2 sequence:1` | steps=500 |
 | PASS | `CompleteSAWSmart` | 0 | `sequence` | `all:2 observe:5 one:3 rule:6 sequence:1` | steps=500 |
@@ -72,8 +72,8 @@ Tracks `models/*.xml` coverage for the Odin port.
 | PASS | `DualRetraction3D` | 0 | `sequence` | `all:2 one:1 rule:8 sequence:1` | steps=500 |
 | PASS | `DungeonGrowth` | 0 | `sequence` | `all:5 markov:1 one:4 path:1 prl:1 rule:27 sequence:1 union:1` | steps=200 |
 | PASS | `Dwarves` | 0 | `sequence` | `all:1 field:2 one:3 rule:6 sequence:1` | steps=200 |
-| TODO | `Escher` | 0 | `sequence` | `all:3 rule:3 sequence:1 wfc:1` | tile-based WFC not ported yet |
-| TODO | `EscherSurface` | 0 | `sequence` | `all:3 rule:4 sequence:1 wfc:1` | tile-based WFC not ported yet |
+| PASS | `Escher` | 0 | `sequence` | `all:3 rule:3 sequence:1 wfc:1` | steps=500 |
+| PASS | `EscherSurface` | 0 | `sequence` | `all:3 rule:4 sequence:1 wfc:1` | steps=500 |
 | PASS | `EuclideanPath` | 0 | `sequence` | `all:1 field:2 observe:3 one:5 rule:7 sequence:1` | steps=200 |
 | PASS | `FindLongCycle` | 0 | `sequence` | `all:3 markov:3 one:5 prl:1 rule:9 sequence:2 union:1` | steps=200 |
 | PASS | `FireNoise` | 0 | `sequence` | `all:8 markov:2 one:2 prl:2 rule:13 sequence:3` | steps=200 |
@@ -97,7 +97,7 @@ Tracks `models/*.xml` coverage for the Odin port.
 | PASS | `Keys` | 1 | `sequence` | `field:2 markov:1 one:6 prl:2 rule:6 sequence:1` | steps=200 |
 | PASS | `KnightPatrol` | 0 | `markov` | `markov:1 observe:3 one:2 prl:1` | steps=200 |
 | PASS | `Knots2D` | 0 | `sequence` | `all:1 rule:2 sequence:1 wfc:1` | steps=500 |
-| TODO | `Knots3D` | 0 | `sequence` | `all:2 rule:1 sequence:1 wfc:1` | tile-based WFC not ported yet |
+| PASS | `Knots3D` | 0 | `sequence` | `all:2 rule:1 sequence:1 wfc:1` | steps=500 |
 | PASS | `Laplace` | 0 | `one` | `field:1 one:1 rule:1` | steps=200 |
 | PASS | `LoopGrowth` | 0 | `sequence` | `all:1 one:2 sequence:1` | steps=200 |
 | PASS | `LostCity` | 0 | `sequence` | `all:5 convolution:2 markov:1 one:5 prl:3 rule:9 sequence:1` | steps=200 |
@@ -123,13 +123,13 @@ Tracks `models/*.xml` coverage for the Odin port.
 | PASS | `OpenCave` | 0 | `sequence` | `convolution:1 prl:2 rule:2 sequence:1` | steps=100 |
 | PASS | `OpenCave3D` | 0 | `sequence` | `convolution:1 prl:2 rule:2 sequence:1` | steps=100 |
 | PASS | `OrganicMechanic` | 0 | `sequence` | `all:1 field:3 one:1 rule:10 sequence:1` | steps=200 |
-| TODO | `OrientedEscher` | 0 | `sequence` | `all:1 prl:2 rule:4 sequence:1 wfc:1` | tile-based WFC not ported yet |
+| PASS | `OrientedEscher` | 0 | `sequence` | `all:1 prl:2 rule:4 sequence:1 wfc:1` | steps=500 |
 | PASS | `PaintCompetition` | 0 | `sequence` | `all:2 field:2 one:2 rule:6 sequence:1` | steps=200 |
 | PASS | `ParallelGrowth` | 0 | `all` | `all:1` | steps=500 |
 | PASS | `ParallelMazeGrowth` | 0 | `all` | `all:1` | full |
 | PASS | `Partitioning` | 0 | `sequence` | `all:3 rule:1 sequence:2 wfc:1` | steps=500 |
 | PASS | `Percolation` | 0 | `sequence` | `path:1 prl:3 sequence:1` | steps=500 |
-| TODO | `PeriodicEscher` | 0 | `sequence` | `all:4 rule:9 sequence:2 wfc:1` | tile-based WFC not ported yet |
+| PASS | `PeriodicEscher` | 0 | `sequence` | `all:4 rule:9 sequence:2 wfc:1` | steps=500 |
 | PASS | `PillarsOfEternity` | 0 | `sequence` | `all:8 rule:13 sequence:1 wfc:1` | steps=500 |
 | PASS | `Push` | 0 | `sequence` | `all:1 one:2 rule:2 sequence:1` | steps=500 |
 | PASS | `PutColoredLs` | 0 | `markov` | `all:1 markov:1 one:2 rule:6` | full |

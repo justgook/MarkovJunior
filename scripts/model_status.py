@@ -148,6 +148,12 @@ PASS = {
     ("TilePath", 0): "steps=500",
     ("Partitioning", 0): "steps=500",
     ("PillarsOfEternity", 0): "steps=500",
+    ("ClosedSurface", 0): "steps=500",
+    ("Knots3D", 0): "steps=500",
+    ("Escher", 0): "steps=500",
+    ("EscherSurface", 0): "steps=500",
+    ("OrientedEscher", 0): "steps=500",
+    ("PeriodicEscher", 0): "steps=500",
 }
 
 KNOWN_FAIL = {
