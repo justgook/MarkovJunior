@@ -154,6 +154,8 @@ PASS = {
     ("EscherSurface", 0): "steps=500",
     ("OrientedEscher", 0): "steps=500",
     ("PeriodicEscher", 0): "steps=500",
+    ("Surface", 0): "steps=600",
+    ("SelectLongKnots", 0): "steps=1500",
 }
 
 KNOWN_FAIL = {

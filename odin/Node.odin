@@ -259,7 +259,11 @@ persistent_node_go :: proc(n: ^Persistent_Node, current: ^^Persistent_Node, g: ^
 				if n.wfc.counter >= 0 do n.n += 1
 				return true
 			}
-			return false
+			if n.wfc.counter >= 0 {
+				n.n = 0
+			} else {
+				return false
+			}
 		}
 		for ; n.n < len(n.children); n.n += 1 {
 			child := n.children[n.n]

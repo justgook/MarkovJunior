@@ -6,9 +6,9 @@ Tracks `models/*.xml` coverage for the Odin port.
 
 - `models.xml` entries with files: 155
 - unique model XML files: 137
-- passing/recorded: 145
+- passing/recorded: 147
 - likely supported but unverified: 0
-- TODO / unsupported: 10
+- TODO / unsupported: 8
 
 ## Legend
 
@@ -145,7 +145,7 @@ Tracks `models/*.xml` coverage for the Odin port.
 | PASS | `Rosettes` | 0 | `sequence` | `all:8 convolution:1 field:6 markov:1 prl:3 rule:16 sequence:1` | steps=200 |
 | PASS | `SAWRestart` | 0 | `markov` | `markov:1 one:2` | steps=100 |
 | PASS | `SelectLargeCaves` | 0 | `sequence` | `all:3 convolution:1 markov:1 one:2 prl:2 rule:4 sequence:2` | steps=200 |
-| TODO | `SelectLongKnots` | 0 | `sequence` | `all:2 markov:1 one:1 prl:2 rule:5 sequence:2 wfc:1` | tile-based WFC not ported yet |
+| PASS | `SelectLongKnots` | 0 | `sequence` | `all:2 markov:1 one:1 prl:2 rule:5 sequence:2 wfc:1` | steps=1500 |
 | PASS | `SelfAvoidingWalk` | 0 | `one` | `one:1` | steps=100 |
 | PASS | `Sewers` | 0 | `sequence` | `all:1 markov:1 one:2 path:2 rule:1 sequence:1 wfc:1` | steps=500 |
 | PASS | `SmarterDigger` | 0 | `markov` | `markov:1 one:1 path:1` | steps=500 |
@@ -163,7 +163,7 @@ Tracks `models/*.xml` coverage for the Odin port.
 | PASS | `StrangeDungeon` | 1 | `sequence` | `all:3 one:1 prl:3 rule:3 sequence:1` | steps=500 |
 | PASS | `StrangeGrowth` | 0 | `one` | `one:1` | steps=100 |
 | TODO | `SubmergedKnots` | 0 | `sequence` | `all:4 one:1 rule:1 sequence:2 wfc:1` | tile-based WFC not ported yet |
-| TODO | `Surface` | 0 | `sequence` | `sequence:1 wfc:1` | tile-based WFC not ported yet |
+| PASS | `Surface` | 0 | `sequence` | `sequence:1 wfc:1` | steps=600 |
 | PASS | `Tetris` | 0 | `sequence` | `all:2 markov:1 one:5 prl:4 rule:9 sequence:1 union:1` | steps=200 |
 | PASS | `Texture` | 0 | `sequence` | `all:3 markov:1 one:2 rule:4 sequence:1` | steps=200 |
 | PASS | `TileDungeon` | 0 | `sequence` | `all:2 markov:1 one:1 path:1 rule:1 sequence:1 wfc:1` | steps=500 |
