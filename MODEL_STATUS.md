@@ -6,9 +6,9 @@ Tracks `models/*.xml` coverage for the Odin port.
 
 - `models.xml` entries with files: 155
 - unique model XML files: 137
-- passing/recorded: 124
+- passing/recorded: 138
 - likely supported but unverified: 0
-- TODO / unsupported: 31
+- TODO / unsupported: 17
 
 ## Legend
 
@@ -43,19 +43,19 @@ Tracks `models/*.xml` coverage for the Odin port.
 | PASS | `BiasedMazeGrowth` | 0 | `sequence` | `field:1 one:1 prl:2 rule:1 sequence:1` | steps=200 |
 | PASS | `BiasedVoronoi` | 0 | `sequence` | `field:2 one:3 rule:2 sequence:1` | steps=200 |
 | PASS | `BishopParity` | 0 | `sequence` | `field:2 observe:4 one:4 rule:3 sequence:1` | steps=200 |
-| TODO | `BlueNoise` | 0 | `one` | `field:1 one:1 rule:1` | field heuristic divergence; needs C#-exact field scoring/RNG |
+| PASS | `BlueNoise` | 0 | `one` | `field:1 one:1 rule:1` | steps=200 |
 | PASS | `Cave` | 0 | `sequence` | `all:1 convolution:1 prl:2 rule:2 sequence:1` | steps=100 |
 | PASS | `CaveContour` | 0 | `sequence` | `all:3 convolution:1 prl:4 rule:8 sequence:1` | steps=100 |
 | PASS | `CentralCrawlers` | 0 | `sequence` | `all:1 field:1 one:1 rule:3 sequence:1` | steps=200 |
-| TODO | `CentralSAW` | 0 | `one` | `field:1 one:1` | field heuristic divergence; needs C#-exact field scoring/RNG |
+| PASS | `CentralSAW` | 0 | `one` | `field:1 one:1` | steps=200 |
 | PASS | `ChainDungeon` | 0 | `sequence` | `all:5 convchain:1 markov:1 one:2 path:1 sequence:1` | steps=200 |
 | PASS | `ChainDungeonMaze` | 0 | `sequence` | `all:4 convchain:1 markov:1 one:2 path:1 sequence:1` | steps=200 |
 | PASS | `ChainMaze` | 0 | `sequence` | `all:1 convchain:1 sequence:1` | steps=200 |
 | PASS | `Circuit` | 0 | `sequence` | `all:6 markov:2 one:4 path:1 prl:2 rule:12 sequence:1` | steps=500 |
 | TODO | `ClosedSurface` | 0 | `sequence` | `all:2 rule:1 sequence:1 wfc:1` | tile-based WFC not ported yet |
 | TODO | `ColoredKnots` | 0 | `sequence` | `all:3 markov:1 one:1 rule:30 sequence:1 wfc:1` | tile-based WFC not ported yet |
-| TODO | `CompleteSAW` | 0 | `sequence` | `all:1 observe:3 one:1 rule:2 sequence:1` | uses search=True; Search.Run not ported |
-| TODO | `CompleteSAWSmart` | 0 | `sequence` | `all:2 observe:5 one:3 rule:6 sequence:1` | uses search=True; Search.Run not ported |
+| PASS | `CompleteSAW` | 0 | `sequence` | `all:1 observe:3 one:1 rule:2 sequence:1` | steps=500 |
+| PASS | `CompleteSAWSmart` | 0 | `sequence` | `all:2 observe:5 one:3 rule:6 sequence:1` | steps=500 |
 | PASS | `ConnectedCaves` | 0 | `sequence` | `all:1 convolution:1 markov:1 one:1 path:1 prl:2 rule:2 sequence:1` | steps=100 |
 | PASS | `ConstrainedCaves` | 0 | `sequence` | `all:1 convolution:1 markov:1 one:2 path:1 prl:3 rule:2 sequence:1` | steps=100 |
 | PASS | `Counting` | 0 | `convolution` | `convolution:1 rule:4` | steps=100 |
@@ -66,11 +66,11 @@ Tracks `models/*.xml` coverage for the Odin port.
 | PASS | `DenseSAW` | 0 | `sequence` | `field:1 one:2 sequence:1` | steps=200 |
 | PASS | `DiagonalPath` | 0 | `sequence` | `field:1 observe:3 one:3 rule:2 sequence:1` | steps=200 |
 | PASS | `Digger` | 0 | `markov` | `markov:1 one:2` | steps=100 |
-| TODO | `DijkstraDungeon` | 0 | `sequence` | `all:4 markov:1 one:3 path:1 rule:2 sequence:1 union:1` | path/Markov divergence; needs C#-exact path integration |
+| PASS | `DijkstraDungeon` | 0 | `sequence` | `all:4 markov:1 one:3 path:1 rule:2 sequence:1 union:1` | steps=200 |
 | PASS | `Division` | 0 | `sequence` | `all:3 field:10 prl:4 rule:10 sequence:1` | steps=200 |
 | PASS | `DualRetraction` | 0 | `sequence` | `all:3 one:1 rule:6 sequence:1` | steps=500 |
 | PASS | `DualRetraction3D` | 0 | `sequence` | `all:2 one:1 rule:8 sequence:1` | steps=500 |
-| TODO | `DungeonGrowth` | 0 | `sequence` | `all:5 markov:1 one:4 path:1 prl:1 rule:27 sequence:1 union:1` | path/Markov divergence; needs C#-exact path integration |
+| PASS | `DungeonGrowth` | 0 | `sequence` | `all:5 markov:1 one:4 path:1 prl:1 rule:27 sequence:1 union:1` | steps=200 |
 | PASS | `Dwarves` | 0 | `sequence` | `all:1 field:2 one:3 rule:6 sequence:1` | steps=200 |
 | TODO | `Escher` | 0 | `sequence` | `all:3 rule:3 sequence:1 wfc:1` | tile-based WFC not ported yet |
 | TODO | `EscherSurface` | 0 | `sequence` | `all:3 rule:4 sequence:1 wfc:1` | tile-based WFC not ported yet |
@@ -80,7 +80,7 @@ Tracks `models/*.xml` coverage for the Odin port.
 | PASS | `Flowers` | 0 | `sequence` | `all:3 markov:1 one:2 rule:4 sequence:1` | steps=200 |
 | PASS | `Forest` | 0 | `sequence` | `all:4 markov:1 one:3 prl:1 rule:2 sequence:1` | full |
 | PASS | `ForestFire` | 0 | `prl` | `prl:1 rule:5` | steps=10 |
-| TODO | `ForestFireCA` | 0 | `convolution` | `convolution:1 rule:4` | probabilistic convolution divergence; needs C#-exact convolution RNG/probability behavior |
+| PASS | `ForestFireCA` | 0 | `convolution` | `convolution:1 rule:4` | steps=200 |
 | PASS | `GameOfLife` | 0 | `sequence` | `convolution:1 prl:1 rule:2 sequence:1` | steps=100 |
 | PASS | `Growth` | 0 | `one` | `one:1` | steps=100 |
 | PASS | `Growth` | 1 | `one` | `one:1` | full |
@@ -95,10 +95,10 @@ Tracks `models/*.xml` coverage for the Odin port.
 | PASS | `IrregularSAW` | 0 | `one` | `one:1` | steps=100 |
 | PASS | `Keys` | 0 | `sequence` | `field:2 markov:1 one:6 prl:2 rule:6 sequence:1` | steps=200 |
 | PASS | `Keys` | 1 | `sequence` | `field:2 markov:1 one:6 prl:2 rule:6 sequence:1` | steps=200 |
-| TODO | `KnightPatrol` | 0 | `markov` | `markov:1 observe:3 one:2 prl:1` | observe Markov divergence; needs C#-exact observe/search behavior |
-| TODO | `Knots2D` | 0 | `sequence` | `all:1 rule:2 sequence:1 wfc:1` | tile-based WFC not ported yet |
+| PASS | `KnightPatrol` | 0 | `markov` | `markov:1 observe:3 one:2 prl:1` | steps=200 |
+| PASS | `Knots2D` | 0 | `sequence` | `all:1 rule:2 sequence:1 wfc:1` | steps=500 |
 | TODO | `Knots3D` | 0 | `sequence` | `all:2 rule:1 sequence:1 wfc:1` | tile-based WFC not ported yet |
-| TODO | `Laplace` | 0 | `one` | `field:1 one:1 rule:1` | field heuristic divergence; needs C#-exact field scoring/RNG |
+| PASS | `Laplace` | 0 | `one` | `field:1 one:1 rule:1` | steps=200 |
 | PASS | `LoopGrowth` | 0 | `sequence` | `all:1 one:2 sequence:1` | steps=200 |
 | PASS | `LostCity` | 0 | `sequence` | `all:5 convolution:2 markov:1 one:5 prl:3 rule:9 sequence:1` | steps=200 |
 | PASS | `MarchingSquares` | 0 | `sequence` | `map:1 prl:1 rule:6 sequence:1` | steps=200 |
@@ -127,7 +127,7 @@ Tracks `models/*.xml` coverage for the Odin port.
 | PASS | `PaintCompetition` | 0 | `sequence` | `all:2 field:2 one:2 rule:6 sequence:1` | steps=200 |
 | PASS | `ParallelGrowth` | 0 | `all` | `all:1` | steps=500 |
 | PASS | `ParallelMazeGrowth` | 0 | `all` | `all:1` | full |
-| TODO | `Partitioning` | 0 | `sequence` | `all:3 rule:1 sequence:2 wfc:1` | tile-based WFC not ported yet |
+| PASS | `Partitioning` | 0 | `sequence` | `all:3 rule:1 sequence:2 wfc:1` | steps=500 |
 | PASS | `Percolation` | 0 | `sequence` | `path:1 prl:3 sequence:1` | steps=500 |
 | TODO | `PeriodicEscher` | 0 | `sequence` | `all:4 rule:9 sequence:2 wfc:1` | tile-based WFC not ported yet |
 | TODO | `PillarsOfEternity` | 0 | `sequence` | `all:8 rule:13 sequence:1 wfc:1` | tile-based WFC not ported yet |
@@ -135,7 +135,7 @@ Tracks `models/*.xml` coverage for the Odin port.
 | PASS | `PutColoredLs` | 0 | `markov` | `all:1 markov:1 one:2 rule:6` | full |
 | PASS | `PutLs` | 0 | `all` | `all:1` | steps=5 |
 | PASS | `RainbowGrowth` | 0 | `one` | `one:1 rule:7` | steps=500 |
-| TODO | `RegularPath` | 0 | `sequence` | `all:2 markov:1 observe:3 one:4 prl:1 sequence:1` | observe/path Markov divergence; needs C#-exact observe/search behavior |
+| PASS | `RegularPath` | 0 | `sequence` | `all:2 markov:1 observe:3 one:4 prl:1 sequence:1` | steps=200 |
 | PASS | `RegularSAW` | 0 | `one` | `one:1` | steps=500 |
 | PASS | `RegularSAW` | 1 | `one` | `one:1` | steps=500 |
 | PASS | `RegularSAWRestart` | 0 | `markov` | `markov:1 one:2` | steps=100 |
@@ -166,8 +166,8 @@ Tracks `models/*.xml` coverage for the Odin port.
 | TODO | `Surface` | 0 | `sequence` | `sequence:1 wfc:1` | tile-based WFC not ported yet |
 | PASS | `Tetris` | 0 | `sequence` | `all:2 markov:1 one:5 prl:4 rule:9 sequence:1 union:1` | steps=200 |
 | PASS | `Texture` | 0 | `sequence` | `all:3 markov:1 one:2 rule:4 sequence:1` | steps=200 |
-| TODO | `TileDungeon` | 0 | `sequence` | `all:2 markov:1 one:1 path:1 rule:1 sequence:1 wfc:1` | tile-based WFC not ported yet |
-| TODO | `TilePath` | 0 | `sequence` | `all:2 one:4 rule:3 sequence:1 wfc:1` | tile-based WFC not ported yet |
+| PASS | `TileDungeon` | 0 | `sequence` | `all:2 markov:1 one:1 path:1 rule:1 sequence:1 wfc:1` | steps=500 |
+| PASS | `TilePath` | 0 | `sequence` | `all:2 one:4 rule:3 sequence:1 wfc:1` | steps=500 |
 | PASS | `Trail` | 0 | `one` | `one:1 rule:2` | steps=100 |
 | PASS | `Voronoi` | 0 | `sequence` | `all:1 one:2 rule:2 sequence:1` | steps=200 |
 | PASS | `Voronoi` | 1 | `sequence` | `all:1 one:2 rule:2 sequence:1` | steps=500 |

@@ -47,6 +47,10 @@ Persistent_Node :: struct {
 	observations: []Observation_State,
 	potentials: []int,
 	future: []i32,
+	trajectory: [][]u8,
+	search: bool,
+	limit: int,
+	depth_coefficient: f64,
 	future_computed: bool,
 	temperature: f64,
 	last_matched_turn: int,
@@ -79,6 +83,7 @@ persistent_node_destroy :: proc(n: ^Persistent_Node) {
 	if n.observations != nil do delete(n.observations)
 	if n.potentials != nil do delete(n.potentials)
 	if n.future != nil do delete(n.future)
+	if n.trajectory != nil do search_destroy_trajectory(n.trajectory)
 }
 
 persistent_node_reset :: proc(n: ^Persistent_Node) {
@@ -88,6 +93,7 @@ persistent_node_reset :: proc(n: ^Persistent_Node) {
 	n.last_matched_turn = -1
 	n.match_count = 0
 	n.future_computed = false
+	if n.trajectory != nil { search_destroy_trajectory(n.trajectory); n.trajectory = nil }
 	if n.match_mask != nil {
 		for r in 0..<len(n.match_mask) {
 			for i in 0..<len(n.match_mask[r]) do n.match_mask[r][i] = false
@@ -127,6 +133,8 @@ persistent_load_node :: proc(doc: ^xml.Document, id: xml.Element_ID, g: ^Grid, d
 		n.n = -1
 		if len(xml_attr(doc, id, "sample", "")) > 0 {
 			n.wfc = wfc_load_overlap(doc, id, g, parent_symmetry)
+		} else if len(xml_attr(doc, id, "tileset", "")) > 0 {
+			n.wfc = wfc_load_tile(doc, id, g, parent_symmetry)
 		}
 		persistent_load_children(doc, id, &n.wfc.newgrid, n, debug_counter, node_symmetry)
 	} else if kind_string == "map" {
@@ -172,7 +180,10 @@ persistent_load_fields_and_observations :: proc(doc: ^xml.Document, id: xml.Elem
 			} else if doc.elements[child_id].ident == "observe" {
 				if n.observations == nil {
 					n.observations = make([]Observation_State, len(g.characters))
-					n.potentials = make([]int, len(g.state) * len(g.characters))
+					n.search = xml_attr_bool(doc, id, "search")
+					n.limit = xml_attr_int(doc, id, "limit", -1)
+					n.depth_coefficient = xml_attr_f64(doc, id, "depthCoefficient", 0.5)
+					if !n.search do n.potentials = make([]int, len(g.state) * len(g.characters))
 					n.future = make([]i32, len(g.state))
 				}
 				value, obs := observation_load(doc, child_id, g)
@@ -388,7 +399,7 @@ persistent_rule_scan :: proc(n: ^Persistent_Node, g: ^Grid, ctx: ^Exec_Context) 
 persistent_all_go :: proc(n: ^Persistent_Node, g: ^Grid, random: ^MJRandom, ctx: ^Exec_Context) -> bool {
 	if len(n.rules) == 0 do return false
 	if n.steps > 0 && n.counter >= n.steps do return false
-	if !persistent_compute_observations_and_fields(n, g) do return false
+	if !persistent_compute_observations_and_fields(n, g, random) do return false
 	persistent_rule_scan(n, g, ctx)
 	n.last_matched_turn = ctx.counter
 	if n.match_count == 0 do return false
@@ -489,7 +500,7 @@ persistent_all_fit :: proc(g: ^Grid, rule: ^Rule, x, y, z: int, mask: []bool, ch
 persistent_one_go :: proc(n: ^Persistent_Node, g: ^Grid, random: ^MJRandom, ctx: ^Exec_Context) -> bool {
 	if len(n.rules) == 0 do return false
 	if n.steps > 0 && n.counter >= n.steps do return false
-	if !persistent_compute_observations_and_fields(n, g) do return false
+	if !persistent_compute_observations_and_fields(n, g, random) do return false
 	if n.last_matched_turn >= 0 {
 		start := ctx.first[n.last_matched_turn]
 		for ci := start; ci < len(ctx.changes); ci += 1 {
@@ -526,6 +537,13 @@ persistent_one_go :: proc(n: ^Persistent_Node, g: ^Grid, random: ^MJRandom, ctx:
 	}
 	n.last_matched_turn = ctx.counter
 
+	if n.trajectory != nil {
+		if n.counter >= len(n.trajectory) do return false
+		copy(g.state, n.trajectory[n.counter])
+		n.counter += 1
+		return true
+	}
+
 	if n.potentials != nil {
 		return persistent_one_go_potentials(n, g, random, ctx)
 	}
@@ -555,6 +573,10 @@ persistent_one_go :: proc(n: ^Persistent_Node, g: ^Grid, random: ^MJRandom, ctx:
 }
 
 persistent_one_go_potentials :: proc(n: ^Persistent_Node, g: ^Grid, random: ^MJRandom, ctx: ^Exec_Context) -> bool {
+	if n.observations != nil && observations_goal_reached(g.state, n.future) {
+		n.future_computed = false
+		return false
+	}
 	max_key := -1000.0
 	argmax := -1
 	first_h := 0
@@ -582,11 +604,20 @@ persistent_one_go_potentials :: proc(n: ^Persistent_Node, g: ^Grid, random: ^MJR
 	return true
 }
 
-persistent_compute_observations_and_fields :: proc(n: ^Persistent_Node, g: ^Grid) -> bool {
+persistent_compute_observations_and_fields :: proc(n: ^Persistent_Node, g: ^Grid, random: ^MJRandom) -> bool {
 	if n.observations != nil && !n.future_computed {
 		if !observations_compute_future_set_present(n.future, g.state, n.observations) do return false
 		n.future_computed = true
-		observations_compute_backward_potentials(n.potentials, n.future, g.mx, g.my, g.mz, len(g.characters), n.rules[:])
+		if n.search {
+			if n.trajectory != nil { search_destroy_trajectory(n.trajectory); n.trajectory = nil }
+			tries := 1
+			if n.limit >= 0 do tries = 20
+			for k := 0; k < tries && n.trajectory == nil; k += 1 {
+				n.trajectory = search_run(g.state, n.future, n.rules[:], g.mx, g.my, g.mz, len(g.characters), n.kind == .All, n.limit, n.depth_coefficient, mj_random_next(random))
+			}
+		} else {
+			observations_compute_backward_potentials(n.potentials, n.future, g.mx, g.my, g.mz, len(g.characters), n.rules[:])
+		}
 	}
 	if n.potentials == nil || n.observations != nil do return true
 	any_success := false

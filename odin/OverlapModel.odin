@@ -30,9 +30,12 @@ wfc_load_overlap :: proc(doc: ^xml.Document, id: xml.Element_ID, g: ^Grid, paren
 		i := (x + y * smx) * channels
 		color: u32 = 0
 		if channels >= 3 {
-			color = (u32(pix[i]) << 16) | (u32(pix[i + 1]) << 8) | u32(pix[i + 2])
+			a: u32 = 0xff
+			if channels >= 4 do a = u32(pix[i + 3])
+			color = (a << 24) | (u32(pix[i]) << 16) | (u32(pix[i + 1]) << 8) | u32(pix[i + 2])
 		} else if channels == 1 {
-			color = u32(pix[i])
+			v := u32(pix[i])
+			color = 0xff000000 | (v << 16) | (v << 8) | v
 		}
 		sample[x + y * smx] = u8(resource_ord(&uniques, color))
 	}

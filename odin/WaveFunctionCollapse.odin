@@ -84,6 +84,8 @@ WFC_State :: struct {
 	counter: int,
 	random: MJRandom,
 	patterns: [][]u8,
+	tile_mode: bool,
+	tile_s, tile_sz, overlap, overlapz: int,
 }
 
 wfc_destroy :: proc(w: ^WFC_State) {
@@ -139,6 +141,19 @@ wfc_go :: proc(w: ^WFC_State, g: ^Grid, random: ^MJRandom) -> bool {
 		w.stacksize = 0
 		wfc_wave_copy(&w.wave, &w.startwave)
 		w.firstgo = false
+		if w.tile_mode {
+			for {
+				node := wfc_next_unobserved(w, g, &w.random)
+				if node < 0 do break
+				wfc_observe(w, node, &w.random)
+				wfc_propagate(w, g)
+			}
+			for i in 0..<len(w.newgrid.state) do w.newgrid.state[i] = 0
+			wfc_tile_update_to(w, &w.newgrid, g.mx, g.my, g.mz, random)
+			w.counter = 0
+			old := g^; g^ = w.newgrid; w.newgrid = old
+			return true
+		}
 		for i in 0..<len(w.newgrid.state) do w.newgrid.state[i] = 0
 		old := g^; g^ = w.newgrid; w.newgrid = old
 		return true
@@ -150,7 +165,9 @@ wfc_go :: proc(w: ^WFC_State, g: ^Grid, random: ^MJRandom) -> bool {
 	} else {
 		w.counter += 1
 	}
-	if w.counter >= 0 do wfc_overlap_update(w, g, random)
+	if w.counter >= 0 {
+		if !w.tile_mode do wfc_overlap_update(w, g, random)
+	}
 	return true
 }
 

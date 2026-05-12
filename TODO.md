@@ -46,6 +46,12 @@ Goal: keep the Odin port behavior-compatible with the C# implementation, using `
   - `ConvChainNode` port added in `odin/ConvChain.odin`; all convchain models (`ChainMaze`, `ChainDungeon`, `ChainDungeonMaze`) pass limited-step compares.
   - Overlapping WFC started in `odin/WaveFunctionCollapse.odin` and `odin/OverlapModel.odin`; `WaveBrickWall`, `WaveFlowers`, `WaveDungeon`, and `Sewers` pass limited-step compares. Tile-based WFC remains TODO.
   - Validated all former `LIKELY` entries: promoted passing models to `PASS` and reclassified known divergences/TODOs with explicit blocker notes. `MODEL_STATUS.md` now has zero `LIKELY` entries.
+  - Fixed root-level field models by routing all persistent-supported roots through the persistent executor, not only `sequence`/`markov`/`wfc`; `BlueNoise`, `CentralSAW`, and `Laplace` now pass.
+  - Fixed probabilistic convolution exactness by matching C#'s `ip.random.Next() < p * int.MaxValue` double comparison instead of truncating the threshold; `ForestFireCA` now passes.
+  - Fixed observe-goal branch handoff for persistent `one`: when observation future is reached, reset `future_computed` and return false like C# `OneNode.RandomMatch`; `KnightPatrol` and `RegularPath` now pass.
+  - Fixed PNG rule-resource color ord mapping to include alpha and match C# ImageSharp/Bgra32 `int` identity (`AARRGGBB`), preserving transparent-vs-opaque distinctions; `DijkstraDungeon` and `DungeonGrowth` now pass.
+  - Added basic `Search.Run` port for observed `one search="True"` nodes, including forward/backward potentials, priority ranking, and trajectory playback; `CompleteSAW` and `CompleteSAWSmart` now pass.
+  - Started tile-based WFC in `odin/TileModel.odin`: VOX tile loading with shared ords, square tile symmetries, neighbor propagator expansion, tile solve/render path. `Knots2D`, `TileDungeon`, `TilePath`, and `Partitioning` pass. Remaining tile WFC models need full/cube symmetry and ordering exactness.
 
 ## Copied / ported files
 

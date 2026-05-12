@@ -112,7 +112,7 @@ run_xml_one_model :: proc(model_name: string, amount: int, output_folder: string
 		g := grid_init(config.mx, config.my, config.mz, values, origin)
 		g.folder = xml_attr(doc, root, "folder", "")
 		load_unions(doc, root, &g)
-		if (root_kind == "sequence" || root_kind == "markov" || root_kind == "wfc") && persistent_supported_tree(doc, root) {
+		if persistent_supported_tree(doc, root) {
 			run_persistent_markov_root(doc, root, &g, &random, config.steps)
 		} else {
 			run_xml_element(doc, root, &g, &random, config.steps)

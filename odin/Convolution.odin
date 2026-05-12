@@ -137,8 +137,7 @@ convolution_go :: proc(c: ^Convolution_State, g: ^Grid, random: ^MJRandom) -> bo
 		input := g.state[i]
 		base := i * c.c
 		for r in c.rules {
-			threshold := i64(r.p * 2147483647.0)
-			if input == r.input && r.output != g.state[i] && (r.p == 1.0 || i64(mj_random_next(random)) < threshold) {
+			if input == r.input && r.output != g.state[i] && (r.p == 1.0 || f64(mj_random_next(random)) < r.p * 2147483647.0) {
 				success := true
 				if r.sums != nil {
 					sum := 0

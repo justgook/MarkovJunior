@@ -152,9 +152,13 @@ load_png_pattern :: proc(path, legend: string) -> Pattern {
 			i := (x + y * img.width) * channels
 			color: u32 = 0
 			if channels >= 3 {
-				color = (u32(pixels[i]) << 16) | (u32(pixels[i + 1]) << 8) | u32(pixels[i + 2])
+				a: u32 = 0xff
+				if channels >= 4 do a = u32(pixels[i + 3])
+				// Match C# ImageSharp Bgra32 copied to int: AARRGGBB.
+				color = (a << 24) | (u32(pixels[i]) << 16) | (u32(pixels[i + 1]) << 8) | u32(pixels[i + 2])
 			} else if channels == 1 {
-				color = u32(pixels[i])
+				v := u32(pixels[i])
+				color = 0xff000000 | (v << 16) | (v << 8) | v
 			}
 			ord := resource_ord(&uniques, color)
 			p.data[x + y * img.width] = legend[ord]

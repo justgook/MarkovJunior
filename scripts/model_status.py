@@ -133,19 +133,23 @@ PASS = {
     ("LostCity", 0): "steps=200",
     ("SelectLargeCaves", 0): "steps=200",
     ("SoftPath", 1): "steps=200",
+    ("BlueNoise", 0): "steps=200",
+    ("CentralSAW", 0): "steps=200",
+    ("Laplace", 0): "steps=200",
+    ("ForestFireCA", 0): "steps=200",
+    ("KnightPatrol", 0): "steps=200",
+    ("RegularPath", 0): "steps=200",
+    ("DijkstraDungeon", 0): "steps=200",
+    ("DungeonGrowth", 0): "steps=200",
+    ("CompleteSAW", 0): "steps=500",
+    ("CompleteSAWSmart", 0): "steps=500",
+    ("Knots2D", 0): "steps=500",
+    ("TileDungeon", 0): "steps=500",
+    ("TilePath", 0): "steps=500",
+    ("Partitioning", 0): "steps=500",
 }
 
 KNOWN_FAIL = {
-    ("BlueNoise", 0): "field heuristic divergence; needs C#-exact field scoring/RNG",
-    ("CentralSAW", 0): "field heuristic divergence; needs C#-exact field scoring/RNG",
-    ("Laplace", 0): "field heuristic divergence; needs C#-exact field scoring/RNG",
-    ("ForestFireCA", 0): "probabilistic convolution divergence; needs C#-exact convolution RNG/probability behavior",
-    ("RegularPath", 0): "observe/path Markov divergence; needs C#-exact observe/search behavior",
-    ("KnightPatrol", 0): "observe Markov divergence; needs C#-exact observe/search behavior",
-    ("DijkstraDungeon", 0): "path/Markov divergence; needs C#-exact path integration",
-    ("DungeonGrowth", 0): "path/Markov divergence; needs C#-exact path integration",
-    ("CompleteSAW", 0): "uses search=True; Search.Run not ported",
-    ("CompleteSAWSmart", 0): "uses search=True; Search.Run not ported",
 }
 
 PARTIAL = {
