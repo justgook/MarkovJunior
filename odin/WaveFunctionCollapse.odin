@@ -142,16 +142,9 @@ wfc_go :: proc(w: ^WFC_State, g: ^Grid, random: ^MJRandom) -> bool {
 		wfc_wave_copy(&w.wave, &w.startwave)
 		w.firstgo = false
 		if w.tile_mode {
-			for {
-				node := wfc_next_unobserved(w, g, &w.random)
-				if node < 0 do break
-				wfc_observe(w, node, &w.random)
-				wfc_propagate(w, g)
-			}
-			for i in 0..<len(w.newgrid.state) do w.newgrid.state[i] = 0
-			wfc_tile_update_to(w, &w.newgrid, g.mx, g.my, g.mz, random)
-			w.counter = 0
-			old := g^; g^ = w.newgrid; w.newgrid = old
+			// Tile WFC observes on the original coarse grid; C# switches ip.grid to
+			// newgrid early, but WFCNode.grid remains the coarse grid. In Odin the
+			// grid pointer is shared, so delay handoff until observation is complete.
 			return true
 		}
 		for i in 0..<len(w.newgrid.state) do w.newgrid.state[i] = 0
@@ -163,7 +156,14 @@ wfc_go :: proc(w: ^WFC_State, g: ^Grid, random: ^MJRandom) -> bool {
 		wfc_observe(w, node, &w.random)
 		wfc_propagate(w, g)
 	} else {
-		w.counter += 1
+		if w.tile_mode {
+			for i in 0..<len(w.newgrid.state) do w.newgrid.state[i] = 0
+			wfc_tile_update_to(w, &w.newgrid, g.mx, g.my, g.mz, random)
+			w.counter = 0
+			old := g^; g^ = w.newgrid; w.newgrid = old
+		} else {
+			w.counter += 1
+		}
 	}
 	if w.counter >= 0 {
 		if !w.tile_mode do wfc_overlap_update(w, g, random)

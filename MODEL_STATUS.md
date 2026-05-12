@@ -6,9 +6,9 @@ Tracks `models/*.xml` coverage for the Odin port.
 
 - `models.xml` entries with files: 155
 - unique model XML files: 137
-- passing/recorded: 147
+- passing/recorded: 155
 - likely supported but unverified: 0
-- TODO / unsupported: 8
+- TODO / unsupported: 0
 
 ## Legend
 
@@ -20,14 +20,14 @@ Tracks `models/*.xml` coverage for the Odin port.
 
 | Status | Model | model-index | Root | Tags | Note |
 |---|---:|---:|---|---|---|
-| TODO | `Apartemazements` | 0 | `sequence` | `all:6 prl:16 rule:28 sequence:1 wfc:1` | tile-based WFC not ported yet |
-| TODO | `Apartemazements` | 1 | `sequence` | `all:6 prl:16 rule:28 sequence:1 wfc:1` | tile-based WFC not ported yet |
+| PASS | `Apartemazements` | 0 | `sequence` | `all:6 prl:16 rule:28 sequence:1 wfc:1` | steps=2500 |
+| PASS | `Apartemazements` | 1 | `sequence` | `all:6 prl:16 rule:28 sequence:1 wfc:1` | steps=2500 |
 | PASS | `CarmaTower` | 0 | `sequence` | `all:68 convolution:2 map:1 markov:12 one:41 path:5 prl:33 rule:178 sequence:2 union:11` | steps=200 |
 | PASS | `CarmaTower` | 1 | `sequence` | `all:68 convolution:2 map:1 markov:12 one:41 path:5 prl:33 rule:178 sequence:2 union:11` | steps=200 |
-| TODO | `ModernHouse` | 0 | `sequence` | `all:29 map:2 markov:8 one:27 path:4 prl:100 rule:352 sequence:1 union:18 wfc:2` | tile-based WFC not ported yet |
-| TODO | `ModernHouse` | 1 | `sequence` | `all:29 map:2 markov:8 one:27 path:4 prl:100 rule:352 sequence:1 union:18 wfc:2` | tile-based WFC not ported yet |
-| TODO | `SeaVilla` | 0 | `sequence` | `all:27 field:2 map:1 markov:8 one:29 path:7 prl:41 rule:236 sequence:1 union:5 wfc:1` | tile-based WFC not ported yet |
-| TODO | `SeaVilla` | 1 | `sequence` | `all:27 field:2 map:1 markov:8 one:29 path:7 prl:41 rule:236 sequence:1 union:5 wfc:1` | tile-based WFC not ported yet |
+| PASS | `ModernHouse` | 0 | `sequence` | `all:29 map:2 markov:8 one:27 path:4 prl:100 rule:352 sequence:1 union:18 wfc:2` | steps=2500 |
+| PASS | `ModernHouse` | 1 | `sequence` | `all:29 map:2 markov:8 one:27 path:4 prl:100 rule:352 sequence:1 union:18 wfc:2` | steps=2500 |
+| PASS | `SeaVilla` | 0 | `sequence` | `all:27 field:2 map:1 markov:8 one:29 path:7 prl:41 rule:236 sequence:1 union:5 wfc:1` | steps=2500 |
+| PASS | `SeaVilla` | 1 | `sequence` | `all:27 field:2 map:1 markov:8 one:29 path:7 prl:41 rule:236 sequence:1 union:5 wfc:1` | steps=2500 |
 | PASS | `Island` | 0 | `sequence` | `all:23 convolution:8 field:1 observe:4 one:14 prl:16 rule:43 sequence:3` | steps=200 |
 | PASS | `Backtracker` | 0 | `markov` | `markov:1 one:2` | full |
 | PASS | `BacktrackerCycle` | 0 | `sequence` | `all:2 markov:1 one:4 sequence:1 union:1` | full |
@@ -53,7 +53,7 @@ Tracks `models/*.xml` coverage for the Odin port.
 | PASS | `ChainMaze` | 0 | `sequence` | `all:1 convchain:1 sequence:1` | steps=200 |
 | PASS | `Circuit` | 0 | `sequence` | `all:6 markov:2 one:4 path:1 prl:2 rule:12 sequence:1` | steps=500 |
 | PASS | `ClosedSurface` | 0 | `sequence` | `all:2 rule:1 sequence:1 wfc:1` | steps=500 |
-| TODO | `ColoredKnots` | 0 | `sequence` | `all:3 markov:1 one:1 rule:30 sequence:1 wfc:1` | tile-based WFC not ported yet |
+| PASS | `ColoredKnots` | 0 | `sequence` | `all:3 markov:1 one:1 rule:30 sequence:1 wfc:1` | steps=2500 |
 | PASS | `CompleteSAW` | 0 | `sequence` | `all:1 observe:3 one:1 rule:2 sequence:1` | steps=500 |
 | PASS | `CompleteSAWSmart` | 0 | `sequence` | `all:2 observe:5 one:3 rule:6 sequence:1` | steps=500 |
 | PASS | `ConnectedCaves` | 0 | `sequence` | `all:1 convolution:1 markov:1 one:1 path:1 prl:2 rule:2 sequence:1` | steps=100 |
@@ -162,7 +162,7 @@ Tracks `models/*.xml` coverage for the Odin port.
 | PASS | `StrangeDungeon` | 0 | `sequence` | `all:3 one:1 prl:3 rule:3 sequence:1` | steps=200 |
 | PASS | `StrangeDungeon` | 1 | `sequence` | `all:3 one:1 prl:3 rule:3 sequence:1` | steps=500 |
 | PASS | `StrangeGrowth` | 0 | `one` | `one:1` | steps=100 |
-| TODO | `SubmergedKnots` | 0 | `sequence` | `all:4 one:1 rule:1 sequence:2 wfc:1` | tile-based WFC not ported yet |
+| PASS | `SubmergedKnots` | 0 | `sequence` | `all:4 one:1 rule:1 sequence:2 wfc:1` | steps=2500 |
 | PASS | `Surface` | 0 | `sequence` | `sequence:1 wfc:1` | steps=600 |
 | PASS | `Tetris` | 0 | `sequence` | `all:2 markov:1 one:5 prl:4 rule:9 sequence:1 union:1` | steps=200 |
 | PASS | `Texture` | 0 | `sequence` | `all:3 markov:1 one:2 rule:4 sequence:1` | steps=200 |

@@ -12,12 +12,17 @@ Grid :: struct {
 }
 
 grid_init :: proc(mx, my, mz: int, values: string, origin: bool) -> Grid {
+	clean_dyn := make([dynamic]u8)
+	for i in 0..<len(values) do if values[i] != ' ' do append(&clean_dyn, values[i])
+	clean := string(make([]u8, len(clean_dyn)))
+	copy(transmute([]u8)clean, clean_dyn[:])
+	delete(clean_dyn)
 	g := Grid {
 		state = make([]u8, mx * my * mz),
 		mx = mx,
 		my = my,
 		mz = mz,
-		characters = values,
+		characters = clean,
 	}
 	if origin {
 		idx := mx / 2 + (my / 2) * mx + (mz / 2) * mx * my

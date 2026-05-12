@@ -51,7 +51,7 @@ Goal: keep the Odin port behavior-compatible with the C# implementation, using `
   - Fixed observe-goal branch handoff for persistent `one`: when observation future is reached, reset `future_computed` and return false like C# `OneNode.RandomMatch`; `KnightPatrol` and `RegularPath` now pass.
   - Fixed PNG rule-resource color ord mapping to include alpha and match C# ImageSharp/Bgra32 `int` identity (`AARRGGBB`), preserving transparent-vs-opaque distinctions; `DijkstraDungeon` and `DungeonGrowth` now pass.
   - Added basic `Search.Run` port for observed `one search="True"` nodes, including forward/backward potentials, priority ranking, and trajectory playback; `CompleteSAW` and `CompleteSAWSmart` now pass.
-  - Started tile-based WFC in `odin/TileModel.odin`: VOX tile loading with shared ords, square tile symmetries, neighbor propagator expansion, tile solve/render path. `Knots2D`, `TileDungeon`, `TilePath`, `Partitioning`, `PillarsOfEternity`, `ClosedSurface`, `Knots3D`, `Escher`, `EscherSurface`, `OrientedEscher`, `PeriodicEscher`, `Surface`, and `SelectLongKnots` pass. Fixed C#-exact `yRotate` for cube/full-symmetry tiles and recorded longer-step WFC compares where C# needs more observations. Remaining tile WFC/post-WFC models still diverge and need exact ordering/full pipeline fixes.
+  - Tile-based WFC in `odin/TileModel.odin`: VOX tile loading with shared ords, square/cube tile symmetries, neighbor propagator expansion, delayed coarse-grid WFC handoff, tile solve/render path. All `models.xml` entries now have recorded passing compares. Fixed C#-style `values.Replace(" ", "")` in `Grid` for models whose value alphabets contain spaces.
 
 ## Copied / ported files
 

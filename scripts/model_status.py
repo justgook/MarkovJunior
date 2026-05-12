@@ -156,6 +156,14 @@ PASS = {
     ("PeriodicEscher", 0): "steps=500",
     ("Surface", 0): "steps=600",
     ("SelectLongKnots", 0): "steps=1500",
+    ("Apartemazements", 0): "steps=2500",
+    ("Apartemazements", 1): "steps=2500",
+    ("ModernHouse", 0): "steps=2500",
+    ("ModernHouse", 1): "steps=2500",
+    ("SeaVilla", 0): "steps=2500",
+    ("SeaVilla", 1): "steps=2500",
+    ("ColoredKnots", 0): "steps=2500",
+    ("SubmergedKnots", 0): "steps=2500",
 }
 
 KNOWN_FAIL = {
