@@ -42,7 +42,10 @@ Goal: keep the Odin port behavior-compatible with the C# implementation, using `
   - `ConvolutionNode` port started in `odin/Convolution.odin`; deterministic/non-probability convolution models pass limited-step compares.
   - Basic `Field` heuristic support started for persistent `one/all`; multiple field-driven models pass limited-step compares.
   - Basic non-search `observe` support started; several observe+field path models pass limited-step compares.
-  - `MapNode` port started in `odin/Map.odin`; 3D map pipeline `OddScale3D` passes limited-step compare. Simple 2D map models still diverge and need follow-up.
+  - `MapNode` port started in `odin/Map.odin`; `OddScale`, `MarchingSquares`, `MazeMap`, `StairsPath`, and `OddScale3D` pass limited-step compares. Fixed C#-style map branch parent behavior (`MapNode.parent = null`) so maps terminate the current branch after grid handoff.
+  - `ConvChainNode` port added in `odin/ConvChain.odin`; all convchain models (`ChainMaze`, `ChainDungeon`, `ChainDungeonMaze`) pass limited-step compares.
+  - Overlapping WFC started in `odin/WaveFunctionCollapse.odin` and `odin/OverlapModel.odin`; `WaveBrickWall`, `WaveFlowers`, `WaveDungeon`, and `Sewers` pass limited-step compares. Tile-based WFC remains TODO.
+  - Validated all former `LIKELY` entries: promoted passing models to `PASS` and reclassified known divergences/TODOs with explicit blocker notes. `MODEL_STATUS.md` now has zero `LIKELY` entries.
 
 ## Copied / ported files
 

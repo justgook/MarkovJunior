@@ -115,6 +115,37 @@ PASS = {
     ("EuclideanPath", 0): "steps=200",
     ("CrossCountry", 0): "steps=200",
     ("OddScale3D", 0): "steps=200",
+    ("OddScale", 0): "steps=200",
+    ("MarchingSquares", 0): "steps=200",
+    ("MazeMap", 0): "steps=200",
+    ("StairsPath", 0): "steps=200",
+    ("ChainMaze", 0): "steps=200",
+    ("ChainDungeon", 0): "steps=200",
+    ("ChainDungeonMaze", 0): "steps=200",
+    ("WaveBrickWall", 0): "steps=500",
+    ("WaveFlowers", 0): "steps=500",
+    ("WaveDungeon", 0): "steps=500",
+    ("Sewers", 0): "steps=500",
+    ("CarmaTower", 0): "steps=200",
+    ("CarmaTower", 1): "steps=200",
+    ("Island", 0): "steps=200",
+    ("Keys", 1): "steps=200",
+    ("LostCity", 0): "steps=200",
+    ("SelectLargeCaves", 0): "steps=200",
+    ("SoftPath", 1): "steps=200",
+}
+
+KNOWN_FAIL = {
+    ("BlueNoise", 0): "field heuristic divergence; needs C#-exact field scoring/RNG",
+    ("CentralSAW", 0): "field heuristic divergence; needs C#-exact field scoring/RNG",
+    ("Laplace", 0): "field heuristic divergence; needs C#-exact field scoring/RNG",
+    ("ForestFireCA", 0): "probabilistic convolution divergence; needs C#-exact convolution RNG/probability behavior",
+    ("RegularPath", 0): "observe/path Markov divergence; needs C#-exact observe/search behavior",
+    ("KnightPatrol", 0): "observe Markov divergence; needs C#-exact observe/search behavior",
+    ("DijkstraDungeon", 0): "path/Markov divergence; needs C#-exact path integration",
+    ("DungeonGrowth", 0): "path/Markov divergence; needs C#-exact path integration",
+    ("CompleteSAW", 0): "uses search=True; Search.Run not ported",
+    ("CompleteSAWSmart", 0): "uses search=True; Search.Run not ported",
 }
 
 PARTIAL = {
@@ -127,8 +158,8 @@ PARTIAL = {
     ("ForestFire", 0): "root <prl>; tested to 10 steps",
 }
 
-IMPLEMENTED_ROOTS = {"one", "all", "prl", "path", "convolution", "sequence", "markov"}
-IMPLEMENTED_TAGS = {"one", "all", "prl", "path", "convolution", "field", "observe", "map", "rule", "sequence", "union", "markov"}
+IMPLEMENTED_ROOTS = {"one", "all", "prl", "path", "convolution", "convchain", "map", "wfc", "sequence", "markov"}
+IMPLEMENTED_TAGS = {"one", "all", "prl", "path", "convolution", "convchain", "field", "observe", "map", "wfc", "rule", "sequence", "union", "markov"}
 
 
 def model_entries():
@@ -162,7 +193,11 @@ def support_status(entry):
     key = (entry["name"], entry["model_index"])
     if key in PASS:
         return "PASS", PASS[key]
+    if key in KNOWN_FAIL:
+        return "TODO", KNOWN_FAIL[key]
     tags = set(entry["tags"])
+    if any(elem.tag == "wfc" and "tileset" in elem.attrib for elem in ET.parse(entry["path"]).getroot().iter()):
+        return "TODO", "tile-based WFC not ported yet"
     if entry["root"] in IMPLEMENTED_ROOTS and tags <= IMPLEMENTED_TAGS:
         if "markov" in tags:
             return "LIKELY", "markov subset implemented; needs compare or persistent all/prl support"

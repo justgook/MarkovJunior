@@ -98,7 +98,7 @@ run_xml_one_model :: proc(model_name: string, amount: int, output_folder: string
 
 	root := xml.Element_ID(0)
 	root_kind := doc.elements[root].ident
-	if root_kind != "one" && root_kind != "all" && root_kind != "prl" && root_kind != "path" && root_kind != "convolution" && root_kind != "sequence" && root_kind != "markov" {
+	if root_kind != "one" && root_kind != "all" && root_kind != "prl" && root_kind != "path" && root_kind != "convolution" && root_kind != "convchain" && root_kind != "wfc" && root_kind != "sequence" && root_kind != "markov" {
 		return false
 	}
 
@@ -112,7 +112,7 @@ run_xml_one_model :: proc(model_name: string, amount: int, output_folder: string
 		g := grid_init(config.mx, config.my, config.mz, values, origin)
 		g.folder = xml_attr(doc, root, "folder", "")
 		load_unions(doc, root, &g)
-		if (root_kind == "sequence" || root_kind == "markov") && persistent_supported_tree(doc, root) {
+		if (root_kind == "sequence" || root_kind == "markov" || root_kind == "wfc") && persistent_supported_tree(doc, root) {
 			run_persistent_markov_root(doc, root, &g, &random, config.steps)
 		} else {
 			run_xml_element(doc, root, &g, &random, config.steps)
@@ -128,7 +128,7 @@ run_xml_one_model :: proc(model_name: string, amount: int, output_folder: string
 
 persistent_supported_tree :: proc(doc: ^xml.Document, id: xml.Element_ID) -> bool {
 	kind := doc.elements[id].ident
-	if kind != "one" && kind != "all" && kind != "prl" && kind != "path" && kind != "convolution" && kind != "map" && kind != "markov" && kind != "sequence" && kind != "rule" && kind != "union" && kind != "field" && kind != "observe" {
+	if kind != "one" && kind != "all" && kind != "prl" && kind != "path" && kind != "convolution" && kind != "convchain" && kind != "wfc" && kind != "map" && kind != "markov" && kind != "sequence" && kind != "rule" && kind != "union" && kind != "field" && kind != "observe" {
 		return false
 	}
 	for value in doc.elements[id].value {
@@ -168,7 +168,7 @@ run_xml_element :: proc(doc: ^xml.Document, id: xml.Element_ID, g: ^Grid, random
 				if child_kind == "union" {
 					continue
 				}
-				if child_kind == "one" || child_kind == "all" || child_kind == "prl" || child_kind == "sequence" || child_kind == "markov" {
+				if child_kind == "one" || child_kind == "all" || child_kind == "prl" || child_kind == "path" || child_kind == "convolution" || child_kind == "convchain" || child_kind == "wfc" || child_kind == "sequence" || child_kind == "markov" {
 					run_xml_element(doc, child_id, g, random, default_steps)
 				}
 			}
@@ -192,6 +192,14 @@ run_xml_element :: proc(doc: ^xml.Document, id: xml.Element_ID, g: ^Grid, random
 		c := convolution_load(doc, id, g)
 		defer convolution_destroy(&c)
 		return convolution_go(&c, g, random)
+	}
+	if kind == "convchain" {
+		c := convchain_load(doc, id, g, xml_attr(doc, id, "symmetry", ""))
+		defer convchain_destroy(&c)
+		return convchain_go(&c, g, random)
+	}
+	if kind == "wfc" {
+		return run_persistent_markov_root(doc, id, g, random, default_steps)
 	}
 
 	if kind != "one" && kind != "all" && kind != "prl" {

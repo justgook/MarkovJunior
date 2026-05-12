@@ -19,6 +19,8 @@ Persistent_Kind :: enum {
 	Prl,
 	Path,
 	Convolution,
+	ConvChain,
+	WFC,
 	Map,
 	Markov,
 	Sequence,
@@ -38,6 +40,8 @@ Persistent_Node :: struct {
 	newstate: []u8,
 	path: Path_State,
 	convolution: Convolution_State,
+	convchain: ConvChain_State,
+	wfc: WFC_State,
 	map_state: Map_State,
 	fields: []Field_State,
 	observations: []Observation_State,
@@ -68,6 +72,8 @@ persistent_node_destroy :: proc(n: ^Persistent_Node) {
 	if n.all_mask != nil do delete(n.all_mask)
 	if n.newstate != nil do delete(n.newstate)
 	convolution_destroy(&n.convolution)
+	convchain_destroy(&n.convchain)
+	wfc_destroy(&n.wfc)
 	map_destroy(&n.map_state)
 	if n.fields != nil do delete(n.fields)
 	if n.observations != nil do delete(n.observations)
@@ -77,7 +83,7 @@ persistent_node_destroy :: proc(n: ^Persistent_Node) {
 
 persistent_node_reset :: proc(n: ^Persistent_Node) {
 	n.n = 0
-	if n.kind == .Map do n.n = -1
+	if n.kind == .Map || n.kind == .WFC do n.n = -1
 	n.counter = 0
 	n.last_matched_turn = -1
 	n.match_count = 0
@@ -113,6 +119,16 @@ persistent_load_node :: proc(doc: ^xml.Document, id: xml.Element_ID, g: ^Grid, d
 	} else if kind_string == "convolution" {
 		n.kind = .Convolution
 		n.convolution = convolution_load(doc, id, g)
+	} else if kind_string == "convchain" {
+		n.kind = .ConvChain
+		n.convchain = convchain_load(doc, id, g, node_symmetry)
+	} else if kind_string == "wfc" {
+		n.kind = .WFC
+		n.n = -1
+		if len(xml_attr(doc, id, "sample", "")) > 0 {
+			n.wfc = wfc_load_overlap(doc, id, g, parent_symmetry)
+		}
+		persistent_load_children(doc, id, &n.wfc.newgrid, n, debug_counter, node_symmetry)
 	} else if kind_string == "map" {
 		n.kind = .Map
 		n.n = -1
@@ -171,10 +187,14 @@ persistent_load_children :: proc(doc: ^xml.Document, id: xml.Element_ID, g: ^Gri
 		#partial switch child_id in value {
 		case xml.Element_ID:
 			child_kind := doc.elements[child_id].ident
-			if child_kind == "one" || child_kind == "all" || child_kind == "prl" || child_kind == "path" || child_kind == "convolution" || child_kind == "map" || child_kind == "markov" || child_kind == "sequence" {
+			if child_kind == "one" || child_kind == "all" || child_kind == "prl" || child_kind == "path" || child_kind == "convolution" || child_kind == "convchain" || child_kind == "wfc" || child_kind == "map" || child_kind == "markov" || child_kind == "sequence" {
 				child := persistent_load_node(doc, child_id, g, debug_counter, parent_symmetry)
 				if child != nil {
-					child.parent = n
+					if child.kind == .Map || child.kind == .WFC {
+						child.parent = nil
+					} else {
+						child.parent = n
+					}
 					append(&n.children, child)
 				}
 			}
@@ -220,6 +240,24 @@ persistent_node_go :: proc(n: ^Persistent_Node, current: ^^Persistent_Node, g: ^
 		return path_go(&n.path, g, random, &ctx.changes)
 	case .Convolution:
 		return convolution_go(&n.convolution, g, random)
+	case .ConvChain:
+		return convchain_go(&n.convchain, g, random)
+	case .WFC:
+		if n.n < 0 {
+			if wfc_go(&n.wfc, g, random) {
+				if n.wfc.counter >= 0 do n.n += 1
+				return true
+			}
+			return false
+		}
+		for ; n.n < len(n.children); n.n += 1 {
+			child := n.children[n.n]
+			if child.kind == .Markov || child.kind == .Sequence || child.kind == .Map || child.kind == .WFC do current^ = child
+			if persistent_node_go(child, current, g, random, ctx) do return true
+		}
+		current^ = n.parent
+		persistent_node_reset(n)
+		return false
 	case .Map:
 		if n.n < 0 {
 			map_go_initial(&n.map_state, g)
@@ -228,7 +266,7 @@ persistent_node_go :: proc(n: ^Persistent_Node, current: ^^Persistent_Node, g: ^
 		}
 		for ; n.n < len(n.children); n.n += 1 {
 			child := n.children[n.n]
-			if child.kind == .Markov || child.kind == .Sequence || child.kind == .Map do current^ = child
+			if child.kind == .Markov || child.kind == .Sequence || child.kind == .Map || child.kind == .WFC do current^ = child
 			if persistent_node_go(child, current, g, random, ctx) do return true
 		}
 		current^ = n.parent
@@ -238,7 +276,7 @@ persistent_node_go :: proc(n: ^Persistent_Node, current: ^^Persistent_Node, g: ^
 		n.n = 0
 		for ; n.n < len(n.children); n.n += 1 {
 			child := n.children[n.n]
-			if child.kind == .Markov || child.kind == .Sequence || child.kind == .Map do current^ = child
+			if child.kind == .Markov || child.kind == .Sequence || child.kind == .Map || child.kind == .WFC do current^ = child
 			if persistent_node_go(child, current, g, random, ctx) do return true
 		}
 		current^ = n.parent
@@ -247,7 +285,7 @@ persistent_node_go :: proc(n: ^Persistent_Node, current: ^^Persistent_Node, g: ^
 	case .Sequence:
 		for ; n.n < len(n.children); n.n += 1 {
 			child := n.children[n.n]
-			if child.kind == .Markov || child.kind == .Sequence || child.kind == .Map do current^ = child
+			if child.kind == .Markov || child.kind == .Sequence || child.kind == .Map || child.kind == .WFC do current^ = child
 			if persistent_node_go(child, current, g, random, ctx) do return true
 		}
 		current^ = n.parent
