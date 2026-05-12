@@ -61,6 +61,7 @@ wfc_load_tile :: proc(doc: ^xml.Document, id: xml.Element_ID, g: ^Grid, parent_s
 		delete(vox)
 		start := len(pats)
 		locals := tile_square_symmetries(flat, sx, sz)
+		if full { delete(locals); locals = tile_cube_symmetries(flat, sx, sz) }
 		delete(flat)
 		for p in locals {
 			append(&pats, p)
@@ -81,7 +82,21 @@ wfc_load_tile :: proc(doc: ^xml.Document, id: xml.Element_ID, g: ^Grid, parent_s
 		if tdoc.elements[nid].ident != "neighbor" do continue
 		left := xml_attr(tdoc, nid, "left", "")
 		right := xml_attr(tdoc, nid, "right", "")
-		if left != "" {
+		if left != "" && full {
+			lt := tile_from_attr(left, named[:], w.patterns, sx, sz)
+			rt := tile_from_attr(right, named[:], w.patterns, sx, sz)
+			lsym := tile_square_symmetries_rf(lt, sx, sz, tile_x_rotate, tile_y_reflect)
+			rsym := tile_square_symmetries_rf(rt, sx, sz, tile_x_rotate, tile_y_reflect)
+			for i in 0..<len(lsym) { setprop(temp, w.p, 0, tile_index(w.patterns, lsym[i]), tile_index(w.patterns, rsym[i])); setprop(temp, w.p, 0, tile_index(w.patterns, tile_x_reflect(rsym[i], sx, sz)), tile_index(w.patterns, tile_x_reflect(lsym[i], sx, sz))) }
+			dt := tile_z_rotate(lt, sx, sz); ut := tile_z_rotate(rt, sx, sz)
+			dsym := tile_square_symmetries_rf(dt, sx, sz, tile_y_rotate, tile_z_reflect)
+			usym := tile_square_symmetries_rf(ut, sx, sz, tile_y_rotate, tile_z_reflect)
+			for i in 0..<len(dsym) { setprop(temp, w.p, 1, tile_index(w.patterns, dsym[i]), tile_index(w.patterns, usym[i])); setprop(temp, w.p, 1, tile_index(w.patterns, tile_y_reflect(usym[i], sx, sz)), tile_index(w.patterns, tile_y_reflect(dsym[i], sx, sz))) }
+			bt := tile_y_rotate(lt, sx, sz); tt := tile_y_rotate(rt, sx, sz)
+			bsym := tile_square_symmetries_rf(bt, sx, sz, tile_z_rotate, tile_x_reflect)
+			tsym := tile_square_symmetries_rf(tt, sx, sz, tile_z_rotate, tile_x_reflect)
+			for i in 0..<len(bsym) { setprop(temp, w.p, 4, tile_index(w.patterns, bsym[i]), tile_index(w.patterns, tsym[i])); setprop(temp, w.p, 4, tile_index(w.patterns, tile_z_reflect(tsym[i], sx, sz)), tile_index(w.patterns, tile_z_reflect(bsym[i], sx, sz))) }
+		} else if left != "" {
 			lt := tile_from_attr(left, named[:], w.patterns, sx, sz)
 			rt := tile_from_attr(right, named[:], w.patterns, sx, sz)
 			li := tile_index(w.patterns, lt); ri := tile_index(w.patterns, rt)
@@ -152,16 +167,22 @@ tile_load_vox_ints :: proc(path: string) -> ([]int, int, int, int) {
 tile_ords :: proc(data: []int, uniques: ^[dynamic]int) -> []u8 { r:=make([]u8,len(data)); for d,i in data { ord:=-1; for u,j in uniques do if u==d {ord=j; break}; if ord<0 {ord=len(uniques); append(uniques,d)}; r[i]=u8(ord)}; return r }
 
 tile_z_rotate :: proc(p: []u8, s, sz: int) -> []u8 { q:=make([]u8,len(p)); for z in 0..<sz do for y in 0..<s do for x in 0..<s do q[x+y*s+z*s*s]=p[y+(s-1-x)*s+z*s*s]; return q }
+tile_y_rotate :: proc(p: []u8, s, sz: int) -> []u8 { q:=make([]u8,len(p)); for z in 0..<s do for y in 0..<s do for x in 0..<sz do q[x+y*sz+z*sz*s]=p[s-1-z+y*s+x*s*s]; return q }
+tile_x_rotate :: proc(p: []u8, s, sz: int) -> []u8 { q:=make([]u8,len(p)); for z in 0..<s do for y in 0..<sz do for x in 0..<s do q[x+y*s+z*s*sz]=p[x+z*s+(s-1-y)*s*s]; return q }
 tile_x_reflect :: proc(p: []u8, s, sz: int) -> []u8 { q:=make([]u8,len(p)); for z in 0..<sz do for y in 0..<s do for x in 0..<s do q[x+y*s+z*s*s]=p[(s-1-x)+y*s+z*s*s]; return q }
 tile_y_reflect :: proc(p: []u8, s, sz: int) -> []u8 { q:=make([]u8,len(p)); for z in 0..<sz do for y in 0..<s do for x in 0..<s do q[x+y*s+z*s*s]=p[x+(s-1-y)*s+z*s*s]; return q }
+tile_z_reflect :: proc(p: []u8, s, sz: int) -> []u8 { q:=make([]u8,len(p)); for z in 0..<sz do for y in 0..<s do for x in 0..<s do q[x+y*s+z*s*s]=p[x+y*s+(sz-1-z)*s*s]; return q }
 
 tile_same :: proc(a,b: []u8)->bool{if len(a)!=len(b) do return false; for i in 0..<len(a) do if a[i]!=b[i] do return false; return true}
 tile_index :: proc(list: [][]u8, p: []u8)->int{for i in 0..<len(list) do if tile_same(list[i],p) do return i; return -1}
 
 tile_square_symmetries :: proc(base: []u8, s, sz: int) -> []([]u8) { all:=tile_square_symmetries_no_unique(base,s,sz); res:=make([dynamic][]u8); for p in all { dup:=false; for q in res do if tile_same(q,p){dup=true;break}; if dup {delete(p)} else {append(&res,p)} }; delete(all); out:=make([][]u8,len(res)); copy(out,res[:]); delete(res); return out }
-tile_square_symmetries_no_unique :: proc(base: []u8, s, sz: int) -> []([]u8) { arr:=make([][]u8,8); arr[0]=make([]u8,len(base)); copy(arr[0],base); arr[1]=tile_x_reflect(arr[0],s,sz); arr[2]=tile_z_rotate(arr[0],s,sz); arr[3]=tile_x_reflect(arr[2],s,sz); arr[4]=tile_z_rotate(arr[2],s,sz); arr[5]=tile_x_reflect(arr[4],s,sz); arr[6]=tile_z_rotate(arr[4],s,sz); arr[7]=tile_x_reflect(arr[6],s,sz); return arr }
+tile_square_symmetries_no_unique :: proc(base: []u8, s, sz: int) -> []([]u8) { return tile_square_symmetries_rf(base, s, sz, tile_z_rotate, tile_x_reflect) }
+tile_square_symmetries_rf :: proc(base: []u8, s, sz: int, rot: proc([]u8,int,int)->[]u8, refl: proc([]u8,int,int)->[]u8) -> []([]u8) { arr:=make([][]u8,8); arr[0]=make([]u8,len(base)); copy(arr[0],base); arr[1]=refl(arr[0],s,sz); arr[2]=rot(arr[0],s,sz); arr[3]=refl(arr[2],s,sz); arr[4]=rot(arr[2],s,sz); arr[5]=refl(arr[4],s,sz); arr[6]=rot(arr[4],s,sz); arr[7]=refl(arr[6],s,sz); return arr }
 
-tile_from_attr :: proc(attr: string, named: []Named_Tile_Data, patterns: [][]u8, s, sz: int) -> []u8 { parts:=strings.split(attr," "); defer delete(parts); action:=""; name:=attr; if len(parts)==2 { action=parts[0]; name=parts[1] }; idx:=0; for nt in named do if nt.name==name {idx=nt.start; break}; p:=make([]u8,len(patterns[idx])); copy(p,patterns[idx]); for i:=len(action)-1; i>=0; i-=1 { ch:=action[i]; if ch=='z' { old:=p; p=tile_z_rotate(old,s,sz); delete(old) } }; return p }
+tile_cube_symmetries :: proc(base: []u8, s, sz: int) -> []([]u8) { arr:=make([][]u8,48); arr[0]=make([]u8,len(base)); copy(arr[0],base); arr[1]=tile_x_reflect(arr[0],s,sz); arr[2]=tile_z_rotate(arr[0],s,sz); arr[3]=tile_x_reflect(arr[2],s,sz); arr[4]=tile_z_rotate(arr[2],s,sz); arr[5]=tile_x_reflect(arr[4],s,sz); arr[6]=tile_z_rotate(arr[4],s,sz); arr[7]=tile_x_reflect(arr[6],s,sz); arr[8]=tile_y_rotate(arr[0],s,sz); arr[9]=tile_x_reflect(arr[8],s,sz); arr[10]=tile_y_rotate(arr[2],s,sz); arr[11]=tile_x_reflect(arr[10],s,sz); arr[12]=tile_y_rotate(arr[4],s,sz); arr[13]=tile_x_reflect(arr[12],s,sz); arr[14]=tile_y_rotate(arr[6],s,sz); arr[15]=tile_x_reflect(arr[14],s,sz); arr[16]=tile_y_rotate(arr[8],s,sz); arr[17]=tile_x_reflect(arr[16],s,sz); arr[18]=tile_y_rotate(arr[10],s,sz); arr[19]=tile_x_reflect(arr[18],s,sz); arr[20]=tile_y_rotate(arr[12],s,sz); arr[21]=tile_x_reflect(arr[20],s,sz); arr[22]=tile_y_rotate(arr[14],s,sz); arr[23]=tile_x_reflect(arr[22],s,sz); arr[24]=tile_y_rotate(arr[16],s,sz); arr[25]=tile_x_reflect(arr[24],s,sz); arr[26]=tile_y_rotate(arr[18],s,sz); arr[27]=tile_x_reflect(arr[26],s,sz); arr[28]=tile_y_rotate(arr[20],s,sz); arr[29]=tile_x_reflect(arr[28],s,sz); arr[30]=tile_y_rotate(arr[22],s,sz); arr[31]=tile_x_reflect(arr[30],s,sz); arr[32]=tile_z_rotate(arr[8],s,sz); arr[33]=tile_x_reflect(arr[32],s,sz); arr[34]=tile_z_rotate(arr[10],s,sz); arr[35]=tile_x_reflect(arr[34],s,sz); arr[36]=tile_z_rotate(arr[12],s,sz); arr[37]=tile_x_reflect(arr[36],s,sz); arr[38]=tile_z_rotate(arr[14],s,sz); arr[39]=tile_x_reflect(arr[38],s,sz); arr[40]=tile_z_rotate(arr[24],s,sz); arr[41]=tile_x_reflect(arr[40],s,sz); arr[42]=tile_z_rotate(arr[26],s,sz); arr[43]=tile_x_reflect(arr[42],s,sz); arr[44]=tile_z_rotate(arr[28],s,sz); arr[45]=tile_x_reflect(arr[44],s,sz); arr[46]=tile_z_rotate(arr[30],s,sz); arr[47]=tile_x_reflect(arr[46],s,sz); res:=make([dynamic][]u8); for p in arr { dup:=false; for q in res do if tile_same(q,p){dup=true;break}; if dup {delete(p)} else {append(&res,p)} }; delete(arr); out:=make([][]u8,len(res)); copy(out,res[:]); delete(res); return out }
+
+tile_from_attr :: proc(attr: string, named: []Named_Tile_Data, patterns: [][]u8, s, sz: int) -> []u8 { parts:=strings.split(attr," "); defer delete(parts); action:=""; name:=attr; if len(parts)==2 { action=parts[0]; name=parts[1] }; idx:=0; for nt in named do if nt.name==name {idx=nt.start; break}; p:=make([]u8,len(patterns[idx])); copy(p,patterns[idx]); for i:=len(action)-1; i>=0; i-=1 { ch:=action[i]; old:=p; if ch=='z' { p=tile_z_rotate(old,s,sz); delete(old) } else if ch=='y' { p=tile_y_rotate(old,s,sz); delete(old) } else if ch=='x' { p=tile_x_rotate(old,s,sz); delete(old) } }; return p }
 
 wfc_tile_update :: proc(w: ^WFC_State, g: ^Grid, random: ^MJRandom) {
 	wfc_tile_update_to(w, g, g.mx, g.my, g.mz, random)

@@ -6,9 +6,9 @@ Tracks `models/*.xml` coverage for the Odin port.
 
 - `models.xml` entries with files: 155
 - unique model XML files: 137
-- passing/recorded: 138
+- passing/recorded: 139
 - likely supported but unverified: 0
-- TODO / unsupported: 17
+- TODO / unsupported: 16
 
 ## Legend
 
@@ -130,7 +130,7 @@ Tracks `models/*.xml` coverage for the Odin port.
 | PASS | `Partitioning` | 0 | `sequence` | `all:3 rule:1 sequence:2 wfc:1` | steps=500 |
 | PASS | `Percolation` | 0 | `sequence` | `path:1 prl:3 sequence:1` | steps=500 |
 | TODO | `PeriodicEscher` | 0 | `sequence` | `all:4 rule:9 sequence:2 wfc:1` | tile-based WFC not ported yet |
-| TODO | `PillarsOfEternity` | 0 | `sequence` | `all:8 rule:13 sequence:1 wfc:1` | tile-based WFC not ported yet |
+| PASS | `PillarsOfEternity` | 0 | `sequence` | `all:8 rule:13 sequence:1 wfc:1` | steps=500 |
 | PASS | `Push` | 0 | `sequence` | `all:1 one:2 rule:2 sequence:1` | steps=500 |
 | PASS | `PutColoredLs` | 0 | `markov` | `all:1 markov:1 one:2 rule:6` | full |
 | PASS | `PutLs` | 0 | `all` | `all:1` | steps=5 |

@@ -147,6 +147,7 @@ PASS = {
     ("TileDungeon", 0): "steps=500",
     ("TilePath", 0): "steps=500",
     ("Partitioning", 0): "steps=500",
+    ("PillarsOfEternity", 0): "steps=500",
 }
 
 KNOWN_FAIL = {
